@@ -1,24 +1,29 @@
-# main
+# main.py
 
-# imports the date and time - used for users to enter purchase dates in a date format
-import datetime
+#import datetime # imports the date and time - used for users to enter purchase dates in a date format
+from flask import Flask, flash, render_template, request, redirect
+from forms import AddItem
+import pandas as pd
 
-# import flask
-from flask import Flask
-# test flask
+db = "/Users/skm/Documents/MHCI/Summer 2021/HCI 584/Project/grocery-spending_skmorris/data/expenses.csv"
+df = pd.read_csv(db)
+
 app = Flask(__name__)
-
 @app.route('/')
-def test():
-    return "Welcome to Flask!"
+#def test():
+#    return "this is a test"
+def additem():
+    """
+    Add a new item
+    """
+    form = AddItem(request.form)
+    return render_template("new_item.html",form=form)
 
-#define app in flask
-#main = Flask(__name__)
+if __name__ == "__main__":
+    app.run()
 
-# import csv data files
-import pandas as pd # access to pandas-defined objects is done via pd
-df = pd.read_csv("/Users/skm/Documents/MHCI/Summer 2021/HCI 584/Project/grocery-spending_skmorris/data/expenses.csv")
-#print(df) # show formated with leading index row
+
+
 
 #Enter Date of item
 #Purchase_Date=input('Enter the date the item was purchased: ')
