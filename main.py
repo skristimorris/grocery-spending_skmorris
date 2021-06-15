@@ -9,12 +9,28 @@ db = "/Users/skm/Documents/MHCI/Summer 2021/HCI 584/Project/grocery-spending_skm
 df = pd.read_csv(db)
 
 app = Flask(__name__)
-@app.route('/', methods=["GET", "POST"])
+@app.route('/forms', methods=["GET", "POST"])
 #def test():
 #    return "this is a test"
 def additem():
     form = AddItem(request.form)
+    #Save item data on submit button press
+ #   if request.method == 'POST' and form.validate():
+ #           save_changes()
     return render_template("new_item.html",form=form)
+
+#Save Data
+#def save_changes(Expense, form, new=False):
+#    name = name()
+
+#Display pandas table in html
+#@app.route('/expenses')
+#def display_expenses():
+#    data= pd.read_csv("/Users/skm/Documents/MHCI/Summer 2021/HCI 584/Project/grocery-spending_skmorris/data/expenses.csv", sep='\s+', quotechar='"')
+#    data.set_index(['Name'], inplace=True)
+
+#    return render_template(data)
+
 
 if __name__ == "__main__":
     app.run()
