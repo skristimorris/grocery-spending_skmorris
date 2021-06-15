@@ -9,13 +9,10 @@ db = "/Users/skm/Documents/MHCI/Summer 2021/HCI 584/Project/grocery-spending_skm
 df = pd.read_csv(db)
 
 app = Flask(__name__)
-@app.route('/')
+@app.route('/', methods=["GET", "POST"])
 #def test():
 #    return "this is a test"
 def additem():
-    """
-    Add a new item
-    """
     form = AddItem(request.form)
     return render_template("new_item.html",form=form)
 
