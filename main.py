@@ -1,8 +1,8 @@
 # main.py
 
 #import datetime # imports the date and time - used for users to enter purchase dates in a date format
-from flask import Flask, flash, render_template, request, redirect
-from pandas.io import sql
+from flask import Flask, render_template, request
+#from pandas.io import sql
 from forms import AddItem
 import pandas as pd
 import sqlite3
@@ -32,13 +32,19 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
+
+
 @app.route('/additem', methods=["GET", "POST"])
 def additem():
     form = AddItem(request.form)
     #Save item data on submit button press
  #   if request.method == 'POST' and form.validate():
  #           save_changes()
-    return render_template("new_item.html",form=form)
+    return render_template("add_item.html",form=form)
+
+@app.route('/spending_history')
+def spending():
+    return render_template("spending_history.html")
 
 #Save Data
 #def save_changes(Expense, form, new=False):
