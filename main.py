@@ -27,9 +27,12 @@ conn.close()
 
 
 app = Flask(__name__)
-@app.route('/forms', methods=["GET", "POST"])
-#def test():
-#    return "this is a test"
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route('/additem', methods=["GET", "POST"])
 def additem():
     form = AddItem(request.form)
     #Save item data on submit button press
@@ -50,8 +53,8 @@ def additem():
 #    return render_template(data)
 
 
-#if __name__ == "__main__":
-#    app.run()
+if __name__ == "__main__":
+    app.run()
 
 
 
