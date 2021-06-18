@@ -4,9 +4,13 @@
 from flask import Flask, flash, render_template, request, redirect
 from forms import AddItem
 import pandas as pd
+import sqlite3
 
-db = "/Users/skm/Documents/MHCI/Summer 2021/HCI 584/Project/grocery-spending_skmorris/data/expenses.csv"
-df = pd.read_csv(db)
+dbname = "data/expenses.csv" # import data from csv file
+df = pd.read_csv(dbname) # read csv and set to dataframe
+print(df)
+
+
 
 app = Flask(__name__)
 @app.route('/forms', methods=["GET", "POST"])
