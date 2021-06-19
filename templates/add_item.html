@@ -2,8 +2,8 @@
 <html>
     <title>Add New Item</title>
     <h1>Add New Item</h1>
-    <body
-        <form method = "POST">
+    <body>
+        <form action="{{ url_for('add_item') }}" method="POST">
             <label for="name">Item Name</label>
             <input type="text" name="name"</input><br><br>
             <label for="category">Category</label>
@@ -24,7 +24,7 @@
             <input type="number" name="quantity"</input><br><br>
             <label for="date">Date of Purchase</label>
             <input type="date" name="date"</input><br><br>
-            <input type="submit" value="Submit"/input>
+            <input type="submit" value="Add Item"/input>
         </form>
 </body>
 </html>
