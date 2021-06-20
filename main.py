@@ -1,47 +1,56 @@
 # main.py
 
-#import datetime # imports the date and time - used for users to enter purchase dates in a date format
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash, redirect
 #from pandas.io import sql
-from forms import AddItem
 import pandas as pd
-import sqlite3
+import sqlite3 as sql
+from sqlite3 import Error
 
-dbname = "data/expenses.csv" # import data from csv file
-df = pd.read_csv(dbname) # read csv and set to dataframe df
-print(df)
+df = pd.read_csv("data/expenses.csv") # read csv and set to dataframe df
+conn = sql.connect("data.db") # connect to sqlite and create database data.db
+df.to_sql("expenses", conn, if_exists = "append") # insert dataframe into sql table called expenses
 
-conn = sqlite3.connect("data.db") # connect to sqlite
-df.to_sql("expenses", conn, if_exists = "replace", index = False) # write records stored in df to sql db named expenses, drop table if it exists before inserting new values
-c = conn.cursor() # create cursor object
-c.execute("SELECT * FROM expenses") # execute query to select everything in expenses db
-for row in c.fetchall(): # return all results of query
-    print(row)
-conn.close() # close connection
-
-conn = sqlite3.connect("data.db") # connect to sqlite
+conn = sql.connect("data.db") # connect to sqlite
 df_from_sql = pd.read_sql_query("SELECT * FROM expenses", con=conn) # read sql query into pandas dataframe
-print(df_from_sql)
-print(df_from_sql.dtypes)
+#print(df_from_sql)
+#print(df_from_sql.dtypes)
 conn.close()
-
 
 app = Flask(__name__)
 
+# FLASK:  INDEX 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+# FLASK:  ADD ITEM
+@app.route('/add_item', methods=["POST", "GET"])
+def add_item():
+    if request.method == 'POST':
+        try:
+            conn = sql.connect("data.db") # connect to sqlite
+            c = conn.cursor() # create cursor object
+            c.execute("INSERT INTO expenses (name, category, price, quantity, date) VALUES (?,?,?,?,?)",
+                (request.form["name"],
+                request.form["category"],
+                request.form["price"],
+                request.form["quantity"],
+                request.form["date"])) # execute query to select everything in expenses db
+            conn.commit() # apply changes
+        except:
+            print("Error")
+        finally:
+            conn.close() # close connection
+    return render_template("add_item.html")
 
 
-@app.route('/additem', methods=["GET", "POST"])
-def additem():
-    form = AddItem(request.form)
-    #Save item data on submit button press
- #   if request.method == 'POST' and form.validate():
- #           save_changes()
-    return render_template("add_item.html",form=form)
 
+
+    
+
+    
+
+# FLASK:  VIEW SPENDING HISTORY
 @app.route('/spending_history')
 def spending():
     return render_template("spending_history.html")
