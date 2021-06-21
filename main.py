@@ -1,18 +1,21 @@
 # main.py
 
 from flask import Flask, render_template, request, flash, redirect, Response
-#from pandas.io import sql
 import pandas as pd
 import sqlite3 as sql
 from sqlite3 import Error
 import io
 import matplotlib.pyplot as plt
 import base64
-
+import csv
 
 df = pd.read_csv("data/expenses.csv") # read csv and set to dataframe df
 conn = sql.connect("data.db") # connect to sqlite and create database data.db
-df.to_sql("expenses", conn, if_exists = "replace") # insert dataframe into sql table called expenses
+df.to_sql("expenses", conn, if_exists = "replace", index = False) # insert dataframe into sql table called expenses
+#c = conn.cursor() # create cursor object
+#c.execute("SELECT * FROM expenses") # execute query to select everything in expenses db
+#for row in c.fetchall(): # return all results of query
+#    print(row)
 
 conn = sql.connect("data.db") # connect to sqlite
 df_from_sql = pd.read_sql_query("SELECT * FROM expenses", con=conn) # read sql query into pandas dataframe
@@ -67,6 +70,9 @@ def add_item():
                 request.form["price"],
                 request.form["quantity"],
                 request.form["date"])) # execute query to select everything in expenses db
+            df = pd.read_sql_query("SELECT * FROM expenses", con=conn)
+            df.to_csv("data/expenses.csv")
+            
             conn.commit() # apply changes
         except:
             print("Error")
