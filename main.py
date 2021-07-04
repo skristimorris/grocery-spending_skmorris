@@ -7,13 +7,16 @@ import io
 import matplotlib.pyplot as plt
 import base64
 
-df = pd.read_csv("data/expenses.csv") # read csv and set to dataframe df
-conn = sql.connect("data.db") # connect to sqlite and create database data.db
-df.to_sql("expenses", conn, if_exists = "replace", index = False) # insert dataframe into sql table called expenses
-#c = conn.cursor() # create cursor object
-#c.execute("SELECT * FROM expenses") # execute query to select everything in expenses db
-#for row in c.fetchall(): # return all results of query
-#    print(row)
+# set this to 1 to recreate or overwrite the SQL with your hand edited csv file
+if 0:
+    df = pd.read_csv("data/expenses.csv") # read csv and set to dataframe df
+    conn = sql.connect("data.db") # connect to sqlite and create database data.db
+    df.to_sql("expenses", conn, if_exists = "replace", index = False) # insert dataframe into sql table called expenses
+    #c = conn.cursor() # create cursor object
+    #c.execute("SELECT * FROM expenses") # execute query to select everything in expenses db
+    #for row in c.fetchall(): # return all results of query
+    #    print(row)
+    conn.close()
 
 conn = sql.connect("data.db") # connect to sqlite
 df_from_sql = pd.read_sql_query("SELECT * FROM expenses", con=conn) # read sql query into pandas dataframe
