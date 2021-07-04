@@ -18,6 +18,7 @@ if 0:
     #    print(row)
     conn.close()
 
+'''
 conn = sql.connect("data.db") # connect to sqlite
 df_from_sql = pd.read_sql_query("SELECT * FROM expenses", con=conn) # read sql query into pandas dataframe
 #print(df_from_sql)
@@ -49,6 +50,7 @@ categorySum=sortedData.groupby('category').sum()
 #plt.ylabel('')
 #plt.show()
 #exit()
+'''
 
 app = Flask(__name__)
 
