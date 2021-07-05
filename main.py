@@ -12,19 +12,9 @@ if 0:
     df = pd.read_csv("data/expenses.csv") # read csv and set to dataframe df
     conn = sql.connect("data.db") # connect to sqlite and create database data.db
     df.to_sql("expenses", conn, if_exists = "replace", index = False) # insert dataframe into sql table called expenses
-    #c = conn.cursor() # create cursor object
-    #c.execute("SELECT * FROM expenses") # execute query to select everything in expenses db
-    #for row in c.fetchall(): # return all results of query
-    #    print(row)
     conn.close()
 
 '''
-conn = sql.connect("data.db") # connect to sqlite
-df_from_sql = pd.read_sql_query("SELECT * FROM expenses", con=conn) # read sql query into pandas dataframe
-#print(df_from_sql)
-#print(df_from_sql.dtypes)
-conn.close()
-
 #Data manipulation for MATPLOTLIB bar plot - preprocessing data columns
 sortedData=df_from_sql.sort_values("date")
 sortedData['Month_Year']=pd.to_datetime(sortedData['date']).dt.to_period('M')
@@ -60,8 +50,10 @@ def index():
     return render_template("index.html")
 
 # FLASK:  ADD ITEM
-@app.route('/add_item', methods=["POST", "GET"])
+@app.route('/add_item', methods=["GET", "POST"])
 def add_item():
+    if request.method == 'GET':
+        return render_template("add_item.html")
     if request.method == 'POST':
         try:
             conn = sql.connect("data.db") # connect to sqlite
@@ -72,12 +64,11 @@ def add_item():
                 request.form["price"],
                 request.form["quantity"],
                 request.form["date"])) 
-            df = pd.read_sql_query("SELECT * FROM expenses", con=conn) # execute query to select everything in expenses db
-            df.to_csv("data/expenses.csv") # write dataframe to expenses.csv file
             conn.commit() # apply changes
         except:
             print("Error")
         finally:
+            print(pd.read_sql_query("SELECT * FROM expenses", con=conn))
             conn.close() # close connection
     return render_template("add_item.html")
 
