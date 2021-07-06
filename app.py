@@ -2,6 +2,7 @@
 
 import sqlite3 as sql
 import dash
+from dash_bootstrap_components._components.Collapse import Collapse
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -11,9 +12,6 @@ import plotly.express as px
 import pandas as pd
 
 # Ref: https://dash.plotly.com/layout
-#external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-#app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
-
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 SIDEBAR_STYLE = {
@@ -45,57 +43,46 @@ fig = px.bar(df, x="year-month", y="price", color="category", barmode="group")
 print(df)
 conn.close()
 
-'''
-def generate_table(dataframe):
-    return html.Table([html.Thead(html.Tr([html.Th(col) 
-        for col in dataframe.columns])), html.Tbody([html.Tr([html.Td(dataframe.iloc[i][col]) 
-        for col in dataframe.columns]) 
-        for i in range(min(len(dataframe)))])])
-'''
-# Ref: https://dash.plotly.com/layout
-#app.layout = html.Div(
-#    children=[
-#        html.H1(children='Hello Dash'),
-#        html.Div(children='''Dash:  A web application framework for Python.'''),
-#        dcc.Graph(
-#            id='example-graph',
-#            figure=fig
-#        )
-#    ]
-#)
-
+# create add item collapse 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/collapse/
-app.layout = html.Div(
+collapse_addItem = html.Div(
     [
-        html.Div(html.H6('Grocery Spending Tracker')),
-        html.Hr(),
         dbc.Button(
             'Add Grocery Item',
+            id='button-add-item',
             color='link',
-            id='add-item-button',
-            n_clicks=0
-            ),
+            n_clicks=0,
+        ),
         dbc.Collapse(
             dbc.CardBody('content here'),
-            id='add-item-collapse',
-            is_open=False
-            ),
-    ],
-    style=SIDEBAR_STYLE
+            id='collapse-add-item',
+            is_open=False,
+        )
+    ]
 )
 
 @app.callback(
-    Output("add-item-collapse", "is_open"),
-    [Input("add-item-button", "n_clicks")],
-    [State("add-item-collapse", "is_open")],
+    Output('collapse-add-item', 'is_open'),
+    [Input('button-add-item', 'n_clicks')],
+    [State('collapse-add-item', 'is_open')],
 )
+
 def toggle_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
 
+# create sidebar attributes
+sidebar = html.Div(
+    [
+    html.H4('Grocery Spending Tracker'),
+    html.Hr(),
+    collapse_addItem # incorporate add item collapse
+    ],
+    style=SIDEBAR_STYLE
+)
 
-
+app.layout = html.Div([sidebar])
 
 if __name__ == '__main__':
     app.run_server(debug=True)
