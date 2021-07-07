@@ -10,6 +10,7 @@ from dash.dependencies import Input, Output, State
 from dash_html_components.I import I
 import plotly.express as px
 import pandas as pd
+import dash_table
 
 df = pd.read_csv("data/expenses.csv")
 
@@ -46,6 +47,7 @@ fig = px.bar(df, x="year-month", y="price", color="category", barmode="group")
 print(df)
 conn.close()
 '''
+# Ref: https://dash.plotly.com/layout
 # create form with inputs to add new item
 input_addItem = dbc.FormGroup(
     [
@@ -122,6 +124,16 @@ input_addItem = dbc.FormGroup(
     ]
 )
 
+# create home button 
+button_home = html.Div(
+        dbc.Button(
+            'Home',
+            id='button-home',
+            color='link',
+            n_clicks=0,
+        )
+)
+
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/collapse/
 # create add item collapse 
 collapse_addItem = html.Div(
@@ -173,7 +185,7 @@ collapse_spendTrends = html.Div(
         )
     ]
 )
-
+# Ref: https://dash-bootstrap-components.opensource.faculty.ai/examples/simple-sidebar/
 # create sidebar attributes
 sidebar = html.Div(
     [
@@ -182,17 +194,47 @@ sidebar = html.Div(
     html.P(
         'Analyze grocery spending habits at an item level.'
     ),
-    collapse_addItem, # incorporate add item collapse
-    collapse_spendHistory, # incorporate add spending history collapse
-    collapse_spendTrends # incorporate add spending trends collapse
+    button_home, # incorporate home button to sidebar
+    collapse_addItem, # incorporate add item collapse to sidebar
+    collapse_spendHistory, # incorporate add spending history collapse to sidebar
+    collapse_spendTrends # incorporate add spending trends collapse to sidebar
     ],
     style=SIDEBAR_STYLE
 )
 
+# create content attribute
 content = html.Div(
     id='content',
     style=CONTENT_STYLE
 )
+
+
+# create add item table attributes
+table_addItem = html.Div(
+    [
+        html.H4('Grocery Items'),
+        html.Hr(),
+        dash_table.DataTable(
+            id='table-add-item',
+            columns=[{
+                'name': i, 'id': i
+            }
+            for i in df.columns],
+            data=df.to_dict('records'),
+        )
+    ],
+    style=CONTENT_STYLE
+)
+
+'''
+table_addItem = dbc.Table.from_dataframe(
+    df,
+    id='table-add-item',
+    striped=True, 
+    bordered=True, 
+    hover=True, 
+    size='sm')
+'''
 '''
 def generate_table(df):
     return html.Table([
@@ -212,11 +254,19 @@ def generate_table(df):
     [Input('button-add-item', 'n_clicks')],
     [State('collapse-add-item', 'is_open')],
 )
-
 def toggle_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
+
+# callback to display table when click on add grocery item button
+@app.callback(
+    Output('content','children'),
+    [Input('button-add-item', 'n_clicks')]
+)
+def table_additem(n):
+    if n:
+        return table_addItem
 
 # callback for spending history collapse
 @app.callback(
@@ -224,26 +274,24 @@ def toggle_collapse(n, is_open):
     [Input('button-spending-history', 'n_clicks')],
     [State('collapse-spending-history', 'is_open')],
 )
-
 def toggle_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
 
-# callback for spending trends collapse
+# callback for spending trends collapse 
 @app.callback(
     Output('collapse-spending-trends', 'is_open'),
     [Input('button-spending-trends', 'n_clicks')],
     [State('collapse-spending-trends', 'is_open')],
 )
-
 def toggle_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
 
 
-app.layout = html.Div([sidebar])
+app.layout = html.Div([sidebar, content])
 
 if __name__ == '__main__':
     app.run_server(debug=True)
