@@ -14,6 +14,7 @@ import pandas as pd
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+# style attributes
 SIDEBAR_STYLE = {
     'position': 'fixed',
     'top': 0,
@@ -43,6 +44,87 @@ fig = px.bar(df, x="year-month", y="price", color="category", barmode="group")
 print(df)
 conn.close()
 
+input_addItem = dbc.FormGroup(
+    [
+        html.P('Item Name', style={
+            'textAlign': 'left'
+        }),
+        dcc.Input(
+            id='name', 
+            placeholder='Enter grocery item here...',
+            style={'width': '100%'}
+        ),
+        html.Div(id='output-name'),
+        html.Br(),
+        html.P('Category', style={
+            'textAlign': 'left'
+        }),
+        dcc.Dropdown(
+            id='category',
+            options=[{
+                'label': 'Beverages',
+                'value': 'beverages'
+            }, {
+                'label': 'Candy',
+                'value': 'candy'
+            }],
+        ),
+        html.Br(),
+        html.P('Price', style={
+            'textAlign': 'left'
+        }),
+        dcc.Input(
+            id='price',
+            type='number',
+            placeholder='Enter grocery item price here...',
+            style={'width': '100%'}
+        ),
+        html.Br(),
+        html.Br(),
+        html.P('Quantity', style={
+            'textAlign': 'left'
+        }),
+        dcc.Slider(
+            id='quantity',
+            min=0,
+            max=10,
+            step=1,
+            value=1,
+            marks={
+                0: '0',
+                1: '1',
+                2: '2',
+                3: '3',
+                4: '4',
+                5:'5',
+                6: '6',
+                7: '7',
+                8: '8',
+                9: '9',
+                10: '10'
+            }
+        ),
+        html.Br(),
+        html.P('Date', style={
+            'textAlign': 'left'
+        }),
+        dcc.DatePickerSingle(
+            id='date',
+            month_format='MMM Do, YY'
+        ),
+        html.Br(),
+        html.Br(),
+        dbc.Button(
+            id='submit_item',
+            n_clicks=0,
+            children='Submit',
+            color='primary',
+            block=True,
+            style={'width': '40%'}
+        )
+    ]
+)
+
 # create add item collapse 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/collapse/
 collapse_addItem = html.Div(
@@ -54,7 +136,7 @@ collapse_addItem = html.Div(
             n_clicks=0,
         ),
         dbc.Collapse(
-            dbc.CardBody('content here'),
+            dbc.CardBody(input_addItem),
             id='collapse-add-item',
             is_open=False,
         )
