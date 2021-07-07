@@ -3,6 +3,7 @@
 import sqlite3 as sql
 import dash
 from dash_bootstrap_components._components.Collapse import Collapse
+from dash_bootstrap_components._components.Navbar import Navbar
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -47,7 +48,17 @@ fig = px.bar(df, x="year-month", y="price", color="category", barmode="group")
 print(df)
 conn.close()
 '''
-# Ref: https://dash.plotly.com/layout
+# Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/navbar/
+# create navbar
+navbar = dbc.NavbarSimple(
+    brand='Grocery Spending Tracker',
+    brand_href='#',
+    color='primary',
+    dark=True,
+    fixed='top'
+)
+
+# Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 # create form with inputs to add new item
 input_addItem = dbc.FormGroup(
     [
@@ -56,7 +67,7 @@ input_addItem = dbc.FormGroup(
         }),
         dcc.Input(
             id='name', 
-            placeholder='Enter grocery item here...',
+            placeholder='Enter grocery item',
             style={'width': '100%'}
         ),
         html.Div(id='output-name'),
@@ -81,7 +92,7 @@ input_addItem = dbc.FormGroup(
         dcc.Input(
             id='price',
             type='number',
-            placeholder='Enter grocery item price here...',
+            placeholder='Enter grocery item',
             style={'width': '100%'}
         ),
         html.Br(),
@@ -124,17 +135,24 @@ input_addItem = dbc.FormGroup(
     ]
 )
 
-# create home button 
-button_home = html.Div(
+# Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/collapse/
+# create dashboard collapse 
+collapse_dashboard = html.Div(
+    [
         dbc.Button(
-            'Home',
-            id='button-home',
+            'Dashboard',
+            id='button-dashboard',
             color='link',
             n_clicks=0,
+        ),
+        dbc.Collapse(
+            dbc.CardBody('content here'),
+            id='collapse-dashboard',
+            is_open=False,
         )
+    ]
 )
 
-# Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/collapse/
 # create add item collapse 
 collapse_addItem = html.Div(
     [
@@ -151,7 +169,7 @@ collapse_addItem = html.Div(
         )
     ]
 )
-
+'''
 # create spending history collapse
 collapse_spendHistory = html.Div(
     [
@@ -168,7 +186,8 @@ collapse_spendHistory = html.Div(
         )
     ]
 )
-
+'''
+'''
 # create spending trends collapse
 collapse_spendTrends = html.Div(
     [
@@ -185,19 +204,22 @@ collapse_spendTrends = html.Div(
         )
     ]
 )
+'''
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/examples/simple-sidebar/
 # create sidebar attributes
 sidebar = html.Div(
     [
-    html.H4('Grocery Spending Tracker'),
-    html.Hr(),
-    html.P(
-        'Analyze grocery spending habits at an item level.'
-    ),
-    button_home, # incorporate home button to sidebar
-    collapse_addItem, # incorporate add item collapse to sidebar
-    collapse_spendHistory, # incorporate add spending history collapse to sidebar
-    collapse_spendTrends # incorporate add spending trends collapse to sidebar
+    html.Br(),
+    html.Br(),
+#    html.H4('Grocery Spending Tracker'),
+#    html.Hr(),
+#    html.P(
+#        'Analyze grocery spending habits at an item level.'
+#    ),
+    collapse_dashboard, # incorporate home button to sidebar
+    collapse_addItem # incorporate add item collapse to sidebar
+#    collapse_spendHistory, # incorporate add spending history collapse to sidebar
+#    collapse_spendTrends # incorporate add spending trends collapse to sidebar
     ],
     style=SIDEBAR_STYLE
 )
@@ -207,8 +229,25 @@ content = html.Div(
     id='content',
     style=CONTENT_STYLE
 )
+'''
+# create add item content attribute
+content = html.Div(
+    id='content-add-item',
+    style=CONTENT_STYLE
+)
 
+# create spending history content attribute
+content = html.Div(
+    id='content-spend-history',
+    style=CONTENT_STYLE
+)
 
+# create spending trends content attribute
+content = html.Div(
+    id='content-spend-trend',
+    style=CONTENT_STYLE
+)
+'''
 # create add item table attributes
 table_addItem = html.Div(
     [
@@ -222,32 +261,20 @@ table_addItem = html.Div(
             for i in df.columns],
             data=df.to_dict('records'),
         )
-    ],
-    style=CONTENT_STYLE
+    ]
 )
 
-'''
-table_addItem = dbc.Table.from_dataframe(
-    df,
-    id='table-add-item',
-    striped=True, 
-    bordered=True, 
-    hover=True, 
-    size='sm')
-'''
-'''
-def generate_table(df):
-    return html.Table([
-        html.Thead(
-            html.Tr([html.Th(col) for col in df.columns])
-        ),
-        html.Tbody([
-            html.Tr([
-                html.Td(df.iloc[i][col]) for col in df.columns
-            ])
-        ])
-    ])
-'''
+# callback for dashboard collapse
+@app.callback(
+    Output('collapse-dashboard', 'is_open'),
+    [Input('button-dashboard', 'n_clicks')],
+    [State('collapse-dashboard', 'is_open')],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
 # callback for add item collapse
 @app.callback(
     Output('collapse-add-item', 'is_open'),
@@ -264,10 +291,11 @@ def toggle_collapse(n, is_open):
     Output('content','children'),
     [Input('button-add-item', 'n_clicks')]
 )
-def table_additem(n):
+def displayContent(n):
     if n:
         return table_addItem
 
+'''
 # callback for spending history collapse
 @app.callback(
     Output('collapse-spending-history', 'is_open'),
@@ -289,9 +317,9 @@ def toggle_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
+'''
 
-
-app.layout = html.Div([sidebar, content])
+app.layout = html.Div([navbar, sidebar, content])
 
 if __name__ == '__main__':
     app.run_server(debug=True)
