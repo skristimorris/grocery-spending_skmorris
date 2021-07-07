@@ -11,6 +11,8 @@ from dash_html_components.I import I
 import plotly.express as px
 import pandas as pd
 
+df = pd.read_csv("data/expenses.csv")
+
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -30,7 +32,7 @@ CONTENT_STYLE = {
     'margin-right': '5%',
     'padding': '20px 10px'
 }
-
+'''
 # set this to 1 to recreate or overwrite the SQL with your hand edited csv file
 if 0:
     df = pd.read_csv("data/expenses.csv") # read csv and set to dataframe df
@@ -43,7 +45,8 @@ df = pd.read_sql_query("SELECT category, SUM(price) AS price, strftime('%Y-%m', 
 fig = px.bar(df, x="year-month", y="price", color="category", barmode="group")
 print(df)
 conn.close()
-
+'''
+# create form with inputs to add new item
 input_addItem = dbc.FormGroup(
     [
         html.P('Item Name', style={
@@ -89,20 +92,14 @@ input_addItem = dbc.FormGroup(
             min=0,
             max=10,
             step=1,
-            value=1,
+            #value=1,
             marks={
-                0: '0',
-                1: '1',
-                2: '2',
-                3: '3',
-                4: '4',
-                5:'5',
-                6: '6',
-                7: '7',
-                8: '8',
-                9: '9',
-                10: '10'
-            }
+               i: '{}'.format(i)
+               if i == 1
+               else str(i)
+               for i in range(1,11)
+            },
+            value=1,
         ),
         html.Br(),
         html.P('Date', style={
@@ -125,8 +122,8 @@ input_addItem = dbc.FormGroup(
     ]
 )
 
-# create add item collapse 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/collapse/
+# create add item collapse 
 collapse_addItem = html.Div(
     [
         dbc.Button(
@@ -177,6 +174,38 @@ collapse_spendTrends = html.Div(
     ]
 )
 
+# create sidebar attributes
+sidebar = html.Div(
+    [
+    html.H4('Grocery Spending Tracker'),
+    html.Hr(),
+    html.P(
+        'Analyze grocery spending habits at an item level.'
+    ),
+    collapse_addItem, # incorporate add item collapse
+    collapse_spendHistory, # incorporate add spending history collapse
+    collapse_spendTrends # incorporate add spending trends collapse
+    ],
+    style=SIDEBAR_STYLE
+)
+
+content = html.Div(
+    id='content',
+    style=CONTENT_STYLE
+)
+'''
+def generate_table(df):
+    return html.Table([
+        html.Thead(
+            html.Tr([html.Th(col) for col in df.columns])
+        ),
+        html.Tbody([
+            html.Tr([
+                html.Td(df.iloc[i][col]) for col in df.columns
+            ])
+        ])
+    ])
+'''
 # callback for add item collapse
 @app.callback(
     Output('collapse-add-item', 'is_open'),
@@ -213,35 +242,8 @@ def toggle_collapse(n, is_open):
         return not is_open
     return is_open
 
-# create sidebar attributes
-sidebar = html.Div(
-    [
-    html.H4('Grocery Spending Tracker'),
-    html.Hr(),
-    collapse_addItem, # incorporate add item collapse
-    collapse_spendHistory, # incorporate add spending history collapse
-    collapse_spendTrends # incorporate add spending trends collapse
-    ],
-    style=SIDEBAR_STYLE
-)
 
 app.layout = html.Div([sidebar])
 
-# create spending history collapse
-collapse_spendHistory = html.Div(
-    [
-        dbc.Button(
-            'Spending History',
-            id='button-spending-history',
-            color='link',
-            n_clicks=0,
-        ),
-        dbc.Collapse(
-            dbc.CardBody('content here'),
-            id='collapse-spending-history',
-            is_open=False,
-        )
-    ]
-)
 if __name__ == '__main__':
     app.run_server(debug=True)
