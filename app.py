@@ -49,15 +49,30 @@ print(df)
 conn.close()
 '''
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/navbar/
+'''
 # create navbar
 navbar = dbc.NavbarSimple(
     brand='Grocery Spending Tracker',
     brand_href='#',
     color='primary',
     dark=True,
+    fixed='top',
+)
+'''
+navbar = dbc.Navbar(
+    [
+    html.A(
+        dbc.Row(
+                dbc.Col(dbc.NavbarBrand('Grocery Spending Tracker', className='ml-2')),
+            align='left',
+            no_gutters=True,
+        )
+    )
+    ],
+    color='primary',
+    dark=True,
     fixed='top'
 )
-
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 # create form with inputs to add new item
 input_addItem = dbc.FormGroup(
