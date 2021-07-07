@@ -143,10 +143,69 @@ collapse_addItem = html.Div(
     ]
 )
 
+# create spending history collapse
+collapse_spendHistory = html.Div(
+    [
+        dbc.Button(
+            'Spending History',
+            id='button-spending-history',
+            color='link',
+            n_clicks=0,
+        ),
+        dbc.Collapse(
+            dbc.CardBody('content here'),
+            id='collapse-spending-history',
+            is_open=False,
+        )
+    ]
+)
+
+# create spending trends collapse
+collapse_spendTrends = html.Div(
+    [
+        dbc.Button(
+            'Spending Trends',
+            id='button-spending-trends',
+            color='link',
+            n_clicks=0,
+        ),
+        dbc.Collapse(
+            dbc.CardBody('content here'),
+            id='collapse-spending-trends',
+            is_open=False,
+        )
+    ]
+)
+
+# callback for add item collapse
 @app.callback(
     Output('collapse-add-item', 'is_open'),
     [Input('button-add-item', 'n_clicks')],
     [State('collapse-add-item', 'is_open')],
+)
+
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+# callback for spending history collapse
+@app.callback(
+    Output('collapse-spending-history', 'is_open'),
+    [Input('button-spending-history', 'n_clicks')],
+    [State('collapse-spending-history', 'is_open')],
+)
+
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+# callback for spending trends collapse
+@app.callback(
+    Output('collapse-spending-trends', 'is_open'),
+    [Input('button-spending-trends', 'n_clicks')],
+    [State('collapse-spending-trends', 'is_open')],
 )
 
 def toggle_collapse(n, is_open):
@@ -159,12 +218,30 @@ sidebar = html.Div(
     [
     html.H4('Grocery Spending Tracker'),
     html.Hr(),
-    collapse_addItem # incorporate add item collapse
+    collapse_addItem, # incorporate add item collapse
+    collapse_spendHistory, # incorporate add spending history collapse
+    collapse_spendTrends # incorporate add spending trends collapse
     ],
     style=SIDEBAR_STYLE
 )
 
 app.layout = html.Div([sidebar])
 
+# create spending history collapse
+collapse_spendHistory = html.Div(
+    [
+        dbc.Button(
+            'Spending History',
+            id='button-spending-history',
+            color='link',
+            n_clicks=0,
+        ),
+        dbc.Collapse(
+            dbc.CardBody('content here'),
+            id='collapse-spending-history',
+            is_open=False,
+        )
+    ]
+)
 if __name__ == '__main__':
     app.run_server(debug=True)
