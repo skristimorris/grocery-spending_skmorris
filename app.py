@@ -49,16 +49,6 @@ print(df)
 conn.close()
 '''
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/navbar/
-'''
-# create navbar
-navbar = dbc.NavbarSimple(
-    brand='Grocery Spending Tracker',
-    brand_href='#',
-    color='primary',
-    dark=True,
-    fixed='top',
-)
-'''
 navbar = dbc.Navbar(
     [
     html.A(
@@ -107,7 +97,7 @@ input_addItem = dbc.FormGroup(
         dcc.Input(
             id='price',
             type='number',
-            placeholder='Enter grocery item',
+            placeholder='Enter price of item',
             style={'width': '100%'}
         ),
         html.Br(),
@@ -154,6 +144,24 @@ input_addItem = dbc.FormGroup(
 # create dashboard collapse 
 collapse_dashboard = html.Div(
     [
+        dbc.NavLink(
+            'Dashboard',
+            href='/dashboard',
+            id='button-dashboard',
+            active='exact',
+            n_clicks=0,
+        ),
+        dbc.Collapse(
+            dbc.CardBody('content here'),
+            id='collapse-dashboard',
+            is_open=False,
+        )
+    ]
+)
+'''
+# create dashboard collapse 
+collapse_dashboard = html.Div(
+    [
         dbc.Button(
             'Dashboard',
             id='button-dashboard',
@@ -167,7 +175,27 @@ collapse_dashboard = html.Div(
         )
     ]
 )
+'''
 
+# create add item collapse 
+collapse_addItem = html.Div(
+    [
+        dbc.NavLink(
+            'Add Grocery Item',
+            href='/add-item',
+            id='button-add-item',
+            active='exact',
+            n_clicks=0,
+        ),
+        dbc.Collapse(
+            dbc.CardBody(input_addItem),
+            id='collapse-add-item',
+            is_open=False,
+        )
+    ]
+)
+
+'''
 # create add item collapse 
 collapse_addItem = html.Div(
     [
@@ -184,6 +212,7 @@ collapse_addItem = html.Div(
         )
     ]
 )
+'''
 '''
 # create spending history collapse
 collapse_spendHistory = html.Div(
@@ -244,29 +273,13 @@ content = html.Div(
     id='content',
     style=CONTENT_STYLE
 )
-'''
-# create add item content attribute
-content = html.Div(
-    id='content-add-item',
-    style=CONTENT_STYLE
-)
 
-# create spending history content attribute
-content = html.Div(
-    id='content-spend-history',
-    style=CONTENT_STYLE
-)
-
-# create spending trends content attribute
-content = html.Div(
-    id='content-spend-trend',
-    style=CONTENT_STYLE
-)
-'''
 # create add item table attributes
 table_addItem = html.Div(
     [
-        html.H4('Grocery Items'),
+        html.Br(),
+        html.Br(),
+        html.H5('Grocery Items'),
         html.Hr(),
         dash_table.DataTable(
             id='table-add-item',
@@ -276,6 +289,16 @@ table_addItem = html.Div(
             for i in df.columns],
             data=df.to_dict('records'),
         )
+    ]
+)
+
+# create graphs for dashboard
+generate_graphs = html.Div(
+    [
+        html.Br(),
+        html.Br(),
+        html.H5('Dashboard'),
+        html.Hr()
     ]
 )
 
@@ -290,6 +313,16 @@ def toggle_collapse(n, is_open):
         return not is_open
     return is_open
 
+'''
+# callback to display graphs when click on dashboard button
+@app.callback(
+    Output('content','children'),
+    [Input('button-add-item', 'n_clicks')]
+)
+def displayContent(n):
+    if n:
+        return table_addItem
+'''
 # callback for add item collapse
 @app.callback(
     Output('collapse-add-item', 'is_open'),
@@ -301,15 +334,42 @@ def toggle_collapse(n, is_open):
         return not is_open
     return is_open
 
+# callback to display content when click on link
+@app.callback(
+    Output('content', 'children'),
+    [Input('url', 'pathname')]
+)
+def render_content(pathname):
+    if pathname == '/dashboard':
+        return generate_graphs
+    elif pathname == '/add-item':
+        return table_addItem
+
+
+'''
 # callback to display table when click on add grocery item button
 @app.callback(
     Output('content','children'),
-    [Input('button-add-item', 'n_clicks')]
+    [Input('button-add-item', 'n_clicks'), Input('button-dashboard', 'n_clicks')]
 )
-def displayContent(n):
-    if n:
-        return table_addItem
-
+def displayContent(n_addItem, n_dashboard):
+    if n_dashboard:
+        return generate_graphs
+    elif n_addItem:
+        return table_addItem 
+'''
+'''
+# callback to display table when click on add grocery item button
+@app.callback(
+    Output('content','children'),
+    [Input('button-add-item', 'n_clicks'), Input('button-dashboard', 'n_clicks')]
+)
+def displayContent(n_addItem, n_dashboard):
+    if n_dashboard:
+        return generate_graphs
+    elif n_addItem:
+        return table_addItem 
+'''
 '''
 # callback for spending history collapse
 @app.callback(
@@ -334,7 +394,7 @@ def toggle_collapse(n, is_open):
     return is_open
 '''
 
-app.layout = html.Div([navbar, sidebar, content])
+app.layout = html.Div([dcc.Location(id='url'), navbar, sidebar, content])
 
 if __name__ == '__main__':
     app.run_server(debug=True)
