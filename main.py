@@ -76,7 +76,7 @@ def add_item():
 @app.route('/spending_history')
 def spending():
     return render_template("spending_history.html")
-
+'''
 #Save Data
 #def save_changes(Expense, form, new=False):
 #    name = name()
@@ -135,7 +135,7 @@ def piePlot():
     linkedpieImage=base64.b64encode(pieImage.getvalue()).decode('utf8')
     #Process html template where image source of mont_price_bar_plot is stored
     return render_template('expenses_category.html', plot_url=linkedpieImage)
-
+'''
 
 if __name__ == "__main__":
     app.run()
