@@ -298,7 +298,12 @@ generate_graphs = html.Div(
         html.Br(),
         html.Br(),
         html.H5('Dashboard'),
-        html.Hr()
+        html.Hr(),
+        dbc.Col(dcc.Graph(
+            id='graph_1',
+            figure = px.bar(df, x="date", y="price", color="category", barmode="group"),
+        )
+        )
     ]
 )
 
@@ -344,8 +349,16 @@ def render_content(pathname):
         return generate_graphs
     elif pathname == '/add-item':
         return table_addItem
-
-
+'''
+# callback to display graph 1
+@app.callback(
+    Output('graph_1', 'figure'),
+    [Input('button-dashboard', 'n_clicks')],
+)
+def update_graph_1():
+    fig = px.bar(df, x="date", y="price", color="category", barmode="group")
+    return fig
+'''
 '''
 # callback to display table when click on add grocery item button
 @app.callback(
@@ -357,41 +370,6 @@ def displayContent(n_addItem, n_dashboard):
         return generate_graphs
     elif n_addItem:
         return table_addItem 
-'''
-'''
-# callback to display table when click on add grocery item button
-@app.callback(
-    Output('content','children'),
-    [Input('button-add-item', 'n_clicks'), Input('button-dashboard', 'n_clicks')]
-)
-def displayContent(n_addItem, n_dashboard):
-    if n_dashboard:
-        return generate_graphs
-    elif n_addItem:
-        return table_addItem 
-'''
-'''
-# callback for spending history collapse
-@app.callback(
-    Output('collapse-spending-history', 'is_open'),
-    [Input('button-spending-history', 'n_clicks')],
-    [State('collapse-spending-history', 'is_open')],
-)
-def toggle_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
-# callback for spending trends collapse 
-@app.callback(
-    Output('collapse-spending-trends', 'is_open'),
-    [Input('button-spending-trends', 'n_clicks')],
-    [State('collapse-spending-trends', 'is_open')],
-)
-def toggle_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
 '''
 
 app.layout = html.Div([dcc.Location(id='url'), navbar, sidebar, content])
