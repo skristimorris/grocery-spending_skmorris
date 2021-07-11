@@ -9,6 +9,7 @@ from dash_html_components.I import I
 import plotly.express as px
 import pandas as pd
 import dash_table
+import time
 
 df = pd.read_csv("data/expenses.csv")
 
@@ -123,6 +124,19 @@ input_addItem = dbc.FormGroup(
             color='primary',
             block=True,
             style={'width': '40%'}
+        ),
+        dcc.Loading(
+            id='loading-submit-item',
+            children=[
+                html.Div(
+                    [
+                        html.Div(
+                            id='output-loading-submit-item'
+                        )
+                    ]
+                )
+            ],
+            type='circle',
         )
     ]
 )
@@ -260,8 +274,7 @@ content = html.Div(
 )
 
 # create add item table attributes
-table_addItem = dcc.Loading(
-    html.Div(
+table_addItem = html.Div(
     [
         html.Br(),
         html.Br(),
@@ -277,11 +290,9 @@ table_addItem = dcc.Loading(
         )
     ]
 )
-)
 
 # create graphs for dashboard
-generate_graphs = dcc.Loading(
-    html.Div(
+generate_graphs = html.Div(
     [
         html.Br(),
         html.Br(),
@@ -293,7 +304,6 @@ generate_graphs = dcc.Loading(
         )
         )
     ]
-)
 )
 
 # callback for dashboard collapse
@@ -338,6 +348,16 @@ def render_content(pathname):
         return generate_graphs
     elif pathname == '/add-item':
         return table_addItem
+'''
+# callback for loading on submit item button
+@app.callback(
+    Output('output-loading-submit-item', 'children'),
+    [Input('loading-submit-item', 'n_clicks')]
+)
+def input_loading(n):
+    time.sleep(1)
+    return n
+'''
 '''
 # callback to display graph 1
 @app.callback(
