@@ -23,3 +23,20 @@ conn.close()
 
             #df = pd.read_sql_query("SELECT * FROM expenses", con=conn) # execute query to select everything in expenses db
             #df.to_csv("data/expenses.csv") # write dataframe to expenses.csv file
+
+
+
+'''
+# set this to 1 to recreate or overwrite the SQL with your hand edited csv file
+if 0:
+    df = pd.read_csv("data/expenses.csv") # read csv and set to dataframe df
+    conn = sql.connect("data.db") # connect to sqlite and create database data.db
+    df.to_sql("expenses", conn, if_exists = "replace", index = False) # insert dataframe into sql table called expenses
+    conn.close()
+
+conn = sql.connect("data.db")
+df = pd.read_sql_query("SELECT category, SUM(price) AS price, strftime('%Y-%m', date) AS 'year-month' FROM expenses GROUP BY category, strftime('%Y-%m', date) ORDER BY strftime('%Y-%m', date), category", con=conn)
+fig = px.bar(df, x="year-month", y="price", color="category", barmode="group")
+print(df)
+conn.close()
+'''
