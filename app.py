@@ -1,9 +1,6 @@
 # app.py
 
-import sqlite3 as sql
 import dash
-from dash_bootstrap_components._components.Collapse import Collapse
-from dash_bootstrap_components._components.Navbar import Navbar
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -38,20 +35,7 @@ CONTENT_STYLE = {
     'margin-right': '5%',
     'padding': '20px 10px'
 }
-'''
-# set this to 1 to recreate or overwrite the SQL with your hand edited csv file
-if 0:
-    df = pd.read_csv("data/expenses.csv") # read csv and set to dataframe df
-    conn = sql.connect("data.db") # connect to sqlite and create database data.db
-    df.to_sql("expenses", conn, if_exists = "replace", index = False) # insert dataframe into sql table called expenses
-    conn.close()
 
-conn = sql.connect("data.db")
-df = pd.read_sql_query("SELECT category, SUM(price) AS price, strftime('%Y-%m', date) AS 'year-month' FROM expenses GROUP BY category, strftime('%Y-%m', date) ORDER BY strftime('%Y-%m', date), category", con=conn)
-fig = px.bar(df, x="year-month", y="price", color="category", barmode="group")
-print(df)
-conn.close()
-'''
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/navbar/
 navbar = dbc.Navbar(
     [
@@ -60,8 +44,8 @@ navbar = dbc.Navbar(
                 dbc.Col(dbc.NavbarBrand('Grocery Spending Tracker', className='ml-2')),
             align='left',
             no_gutters=True,
-        )
-    )
+        ),
+        ),
     ],
     color='primary',
     dark=True,
@@ -195,17 +179,22 @@ input_dashboard = dbc.FormGroup(
 # create dashboard collapse 
 collapse_dashboard = html.Div(
     [
-        dbc.NavLink(
-            'Dashboard',
-            href='/dashboard',
-            id='button-dashboard',
-            active='exact',
-            n_clicks=0,
+        dbc.Nav(
+            [
+                dbc.NavLink(
+                'Dashboard',
+                href='/dashboard',
+                id='button-dashboard',
+                active='exact',
+                n_clicks=0,
+            ),
+            ],
+            pills=True,
         ),
         dbc.Collapse(
             dbc.CardBody(input_dashboard),
             id='collapse-dashboard',
-            is_open=False,
+            is_open=True,
         )
     ]
 )
@@ -213,13 +202,18 @@ collapse_dashboard = html.Div(
 # create add item collapse 
 collapse_addItem = html.Div(
     [
-        dbc.NavLink(
-            'Add Grocery Item',
-            href='/add-item',
-            id='button-add-item',
-            active='exact',
-            n_clicks=0,
-        ),
+        dbc.Nav(
+            [
+                dbc.NavLink(
+                'Add Grocery Item',
+                href='/add-item',
+                id='button-add-item',
+                active='exact',
+                n_clicks=0,
+                ),
+            ],
+            pills=True,
+        ),        
         dbc.Collapse(
             dbc.CardBody(input_addItem),
             id='collapse-add-item',
@@ -253,15 +247,8 @@ sidebar = html.Div(
     [
     html.Br(),
     html.Br(),
-#    html.H4('Grocery Spending Tracker'),
-#    html.Hr(),
-#    html.P(
-#        'Analyze grocery spending habits at an item level.'
-#    ),
     collapse_dashboard, # incorporate home button to sidebar
     collapse_addItem # incorporate add item collapse to sidebar
-#    collapse_spendHistory, # incorporate add spending history collapse to sidebar
-#    collapse_spendTrends # incorporate add spending trends collapse to sidebar
     ],
     style=SIDEBAR_STYLE
 )
