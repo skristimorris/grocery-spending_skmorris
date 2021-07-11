@@ -260,7 +260,8 @@ content = html.Div(
 )
 
 # create add item table attributes
-table_addItem = html.Div(
+table_addItem = dcc.Loading(
+    html.Div(
     [
         html.Br(),
         html.Br(),
@@ -276,9 +277,11 @@ table_addItem = html.Div(
         )
     ]
 )
+)
 
 # create graphs for dashboard
-generate_graphs = html.Div(
+generate_graphs = dcc.Loading(
+    html.Div(
     [
         html.Br(),
         html.Br(),
@@ -290,6 +293,7 @@ generate_graphs = html.Div(
         )
         )
     ]
+)
 )
 
 # callback for dashboard collapse
