@@ -90,6 +90,7 @@ input_addItem = dbc.FormGroup(
                 {'label': i, 'value': i} for i in sorted(df.category.unique())
             ],
         ),
+        html.Div(id='output-category'),
         html.Br(),
         html.P('Price', style={
             'textAlign': 'left'
@@ -100,7 +101,7 @@ input_addItem = dbc.FormGroup(
             placeholder='Enter price of item',
             style={'width': '100%'}
         ),
-        html.Br(),
+        html.Div(id='output-price'),
         html.Br(),
         html.P('Quantity', style={
             'textAlign': 'left'
@@ -119,6 +120,7 @@ input_addItem = dbc.FormGroup(
             },
             value=1,
         ),
+        html.Div(id='output-quantity'),
         html.Br(),
         html.P('Date', style={
             'textAlign': 'left'
@@ -129,6 +131,7 @@ input_addItem = dbc.FormGroup(
         ),
         html.Br(),
         html.Br(),
+        html.Div(id='output-date'),
         dbc.Button(
             id='submit_item',
             n_clicks=0,
@@ -147,7 +150,7 @@ input_dashboard = dbc.FormGroup(
             'textAlign': 'left'
         }),
         dcc.Dropdown(
-            id='dashname',
+            id='dash-name',
             options=[
                 {'label': i, 'value': i} for i in sorted(df.name.unique())
             ],
@@ -165,6 +168,7 @@ input_dashboard = dbc.FormGroup(
             ],
             multi=True,
         ),
+        html.Div(id='output-dash-category'),
         html.Br(),
         html.P('Date', style={
             'textAlign': 'left'
@@ -175,6 +179,7 @@ input_dashboard = dbc.FormGroup(
         ),
         html.Br(),
         html.Br(),
+        html.Div(id='output-dash-date'),
         dbc.Button(
             id='submit_dash',
             n_clicks=0,
@@ -241,42 +246,7 @@ collapse_addItem = html.Div(
     ]
 )
 '''
-'''
-# create spending history collapse
-collapse_spendHistory = html.Div(
-    [
-        dbc.Button(
-            'Spending History',
-            id='button-spending-history',
-            color='link',
-            n_clicks=0,
-        ),
-        dbc.Collapse(
-            dbc.CardBody('content here'),
-            id='collapse-spending-history',
-            is_open=False,
-        )
-    ]
-)
-'''
-'''
-# create spending trends collapse
-collapse_spendTrends = html.Div(
-    [
-        dbc.Button(
-            'Spending Trends',
-            id='button-spending-trends',
-            color='link',
-            n_clicks=0,
-        ),
-        dbc.Collapse(
-            dbc.CardBody('content here'),
-            id='collapse-spending-trends',
-            is_open=False,
-        )
-    ]
-)
-'''
+
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/examples/simple-sidebar/
 # create sidebar attributes
 sidebar = html.Div(
