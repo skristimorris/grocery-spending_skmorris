@@ -163,8 +163,8 @@ input_dashboard = dbc.FormGroup(
             options=[
                 {'label': i, 'value': i} for i in sorted(df.category.unique())
             ],
+            multi=True,
         ),
-        html.Br(),
         html.Br(),
         html.P('Date', style={
             'textAlign': 'left'
