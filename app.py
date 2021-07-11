@@ -16,8 +16,8 @@ import dash_table
 df = pd.read_csv("data/expenses.csv")
 
 # store item name to populate dashboard name dropdown input for selection
-dash_item_name = df.drop_duplicates(subset='name', keep='first', inplace=False).sort_values('name', inplace=False).name.to_string(index=False)
-print(dash_item_name)
+#dash_item_name = df.drop_duplicates(subset='name', keep='first', inplace=False).sort_values('name', inplace=False).name.to_string(index=False)
+#print(dash_item_name)
 
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -150,10 +150,12 @@ input_dashboard = dbc.FormGroup(
         html.P('Item Name', style={
             'textAlign': 'left'
         }),
-        dcc.Input(
-            id='dashname', 
-            placeholder='Enter grocery item',
-            style={'width': '100%'}
+        dcc.Dropdown(
+            id='dashname',
+            options=[
+                {'label': i, 'value': i} for i in sorted(df.name.unique())
+            ],
+            multi=True,
         ),
         html.Div(id='output-dash-name'),
         html.Br(),
@@ -170,7 +172,6 @@ input_dashboard = dbc.FormGroup(
                 'value': 'candy'
             }],
         ),
-        html.Br(),
         html.Br(),
         html.Br(),
         html.P('Date', style={
