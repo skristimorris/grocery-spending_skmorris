@@ -15,6 +15,10 @@ import dash_table
 
 df = pd.read_csv("data/expenses.csv")
 
+# store item name to populate dashboard name dropdown input for selection
+dash_item_name = df.drop_duplicates(subset='name', keep='first', inplace=False).sort_values('name', inplace=False).name.to_string(index=False)
+print(dash_item_name)
+
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -140,6 +144,55 @@ input_addItem = dbc.FormGroup(
     ]
 )
 
+# create form with inputs to filter dashboard
+input_dashboard = dbc.FormGroup(
+    [
+        html.P('Item Name', style={
+            'textAlign': 'left'
+        }),
+        dcc.Input(
+            id='dashname', 
+            placeholder='Enter grocery item',
+            style={'width': '100%'}
+        ),
+        html.Div(id='output-dash-name'),
+        html.Br(),
+        html.P('Category', style={
+            'textAlign': 'left'
+        }),
+        dcc.Dropdown(
+            id='dash-category',
+            options=[{
+                'label': 'Beverages',
+                'value': 'beverages'
+            }, {
+                'label': 'Candy',
+                'value': 'candy'
+            }],
+        ),
+        html.Br(),
+        html.Br(),
+        html.Br(),
+        html.P('Date', style={
+            'textAlign': 'left'
+        }),
+        dcc.DatePickerSingle(
+            id='dash-date',
+            month_format='MMM Do, YY'
+        ),
+        html.Br(),
+        html.Br(),
+        dbc.Button(
+            id='submit_dash',
+            n_clicks=0,
+            children='Submit',
+            color='primary',
+            block=True,
+            style={'width': '40%'}
+        )
+    ]
+)
+
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/collapse/
 # create dashboard collapse 
 collapse_dashboard = html.Div(
@@ -152,30 +205,12 @@ collapse_dashboard = html.Div(
             n_clicks=0,
         ),
         dbc.Collapse(
-            dbc.CardBody('content here'),
+            dbc.CardBody(input_dashboard),
             id='collapse-dashboard',
             is_open=False,
         )
     ]
 )
-'''
-# create dashboard collapse 
-collapse_dashboard = html.Div(
-    [
-        dbc.Button(
-            'Dashboard',
-            id='button-dashboard',
-            color='link',
-            n_clicks=0,
-        ),
-        dbc.Collapse(
-            dbc.CardBody('content here'),
-            id='collapse-dashboard',
-            is_open=False,
-        )
-    ]
-)
-'''
 
 # create add item collapse 
 collapse_addItem = html.Div(
