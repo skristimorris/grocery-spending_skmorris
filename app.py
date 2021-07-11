@@ -86,13 +86,9 @@ input_addItem = dbc.FormGroup(
         }),
         dcc.Dropdown(
             id='category',
-            options=[{
-                'label': 'Beverages',
-                'value': 'beverages'
-            }, {
-                'label': 'Candy',
-                'value': 'candy'
-            }],
+            options=[
+                {'label': i, 'value': i} for i in sorted(df.category.unique())
+            ],
         ),
         html.Br(),
         html.P('Price', style={
@@ -164,13 +160,9 @@ input_dashboard = dbc.FormGroup(
         }),
         dcc.Dropdown(
             id='dash-category',
-            options=[{
-                'label': 'Beverages',
-                'value': 'beverages'
-            }, {
-                'label': 'Candy',
-                'value': 'candy'
-            }],
+            options=[
+                {'label': i, 'value': i} for i in sorted(df.category.unique())
+            ],
         ),
         html.Br(),
         html.Br(),
