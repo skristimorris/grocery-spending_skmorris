@@ -273,6 +273,8 @@ content = html.Div(
     style=CONTENT_STYLE
 )
 
+PAGE_SIZE = 20
+
 # create add item table attributes
 table_addItem = html.Div(
     [
@@ -287,6 +289,9 @@ table_addItem = html.Div(
             }
             for i in df.columns],
             data=df.to_dict('records'),
+            page_current=0,
+            page_size=PAGE_SIZE,
+            page_action='custom'
         )
     ]
 )
@@ -341,13 +346,26 @@ def toggle_collapse(n, is_open):
 # callback to display content when click on link
 @app.callback(
     Output('content', 'children'),
-    [Input('url', 'pathname')]
+    [Input('url', 'pathname')],
 )
 def render_content(pathname):
     if pathname == '/dashboard':
         return generate_graphs
     elif pathname == '/add-item':
         return table_addItem
+
+# Ref: https://dash.plotly.com/datatable/callbacks
+# callback for table paging
+@app.callback(
+    Output('table-add-item', 'data'),
+    [Input('table-add-item', 'page_current')],
+    [Input('table-add-item', 'page_size')]
+)
+def update_table(page_current, page_size):
+    return df.iloc[
+        page_current*page_size:(page_current+ 1)*page_size
+    ].to_dict('records')
+
 '''
 # callback for loading on submit item button
 @app.callback(
