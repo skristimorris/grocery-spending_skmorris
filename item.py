@@ -9,10 +9,14 @@ import dash_table
 from app import app
 from dash.dependencies import Input, Output, State
 from dash_table import FormatTemplate
+import db
+import sqlite3 as sql
+from sqlite3 import Error
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-df = pd.read_csv("data/expenses.csv")
+df = db.df
+#df = pd.read_csv("data/expenses.csv")
 #print(df)
 
 CONTENT_STYLE = {
@@ -129,7 +133,7 @@ app.layout = html.Div(
             children='New Item',
             color='primary',
             block=True,
-            style={'width': '8%', 'textAlign': 'left'}
+            style={'width': '20%', 'textAlign': 'left'}
             ),
             dbc.Modal(
                 [
@@ -137,8 +141,8 @@ app.layout = html.Div(
                 dbc.ModalBody(InputItem()),
                 dbc.ModalFooter(
                     [
-                    dbc.Button('Submit', id='submit', className='ml-auto', n_clicks=0),
-                    dbc.Button('Cancel', id='cancel', className='ml-auto', n_clicks=0)
+                    dbc.Button('Submit', id='submit-new-item', className='ml-auto', n_clicks=0),
+                    dbc.Button('Close', id='close', className='ml-auto', n_clicks=0)
                     ]
                 )
                 ],
@@ -166,7 +170,8 @@ app.layout = html.Div(
             style_cell={'textAlign': 'left'},
             selected_columns=[],
             selected_rows=[],
-        )
+        ),
+        html.Div(id='output-input-form'),
     ],
     style=CONTENT_STYLE
 )
@@ -186,11 +191,11 @@ def CollapseItem():
                     ),
                 ],
             ),        
-            dbc.Collapse(
-                dbc.CardBody(InputItem()),
-                id='collapse-add-item',
-                is_open=True,
-            )
+            #dbc.Collapse(
+            #    dbc.CardBody(InputItem()),
+            #    id='collapse-add-item',
+            #    is_open=True,
+            #)
         ]
     )
     return collapse_addItem
@@ -210,13 +215,45 @@ def update_table(page_current, page_size):
 # callback for modal
 @app.callback(
     Output('modal', 'is_open'),
-    [Input('button-new-item', 'n_clicks'), Input('cancel', 'n_clicks')],
+    [Input('button-new-item', 'n_clicks'), Input('close', 'n_clicks')],
     [State('modal', 'is_open')],
 )
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+# callback to add new item to table
+@app.callback(
+    Output('output-input-form', 'children'),
+    [Input('submit-new-item', 'n_clicks')],
+    [State('name', 'value'),
+    State('category', 'value'),
+    State('price', 'value'),
+    State('quantity', 'value'),
+    State('date', 'date')
+    ]
+)
+def add_item(n, name, category, price, quantity, date):
+    if n:
+        try:
+            #print(name)
+            conn = sql.connect('data.db')
+            c = conn.cursor()
+            c.execute(
+                'INSERT INTO items (name, category, price, quantity, date) VALUES (?,?,?,?,?)',
+                [
+                name, category, price, quantity, date
+                ]
+            )
+            conn.commit()
+        except Error as e:
+            print(e)
+        finally:
+            #print(pd.read_sql_query('SELECT * FROM items', con=conn))
+            print(df)
+            conn.close()
+    #return name, category, price, quantity, date
 
 if __name__ == '__main__':
     app.run_server(debug=True)
