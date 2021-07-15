@@ -15,8 +15,8 @@ from sqlite3 import Error
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-df = db.df
-#df = pd.read_csv("data/expenses.csv")
+#df = db.df
+df = pd.read_csv("data/items.csv")
 #print(df)
 
 CONTENT_STYLE = {
@@ -24,6 +24,28 @@ CONTENT_STYLE = {
     'margin-right': '5%',
     'padding': '20px 10px'
 }
+
+def TableItem():
+    table_item = dash_table.DataTable(
+        data=df.to_dict('records'),
+        id='table-item',
+        columns=[
+            {
+            'name': i, 'id': i
+        }
+        for i in (df.columns)
+        ],
+        filter_action='native',
+        page_action='native',
+        page_current=0,
+        page_size=20,
+        sort_action='native',
+        sort_mode='single',
+        style_cell={'textAlign': 'left'},
+        selected_columns=[],
+        selected_rows=[],
+    )
+    return table_item
 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 # create form with inputs to add new item
@@ -91,6 +113,7 @@ def InputItem():
             html.Br(),
             html.Br(),
             html.Div(id='output-date'),
+            html.Div(id='output-input-form'),
             #dbc.Button(
             #    id='submit_item',
             #    n_clicks=0,
@@ -99,19 +122,6 @@ def InputItem():
             #    block=True,
             #    style={'width': '40%'}
             #),
-            dcc.Loading(
-                id='loading-submit-item',
-                children=[
-                    html.Div(
-                        [
-                            html.Div(
-                                id='output-loading-submit-item'
-                            )
-                        ]
-                    )
-                ],
-                type='circle',
-            )
         ]
     )
     return input_addItem
@@ -152,26 +162,27 @@ app.layout = html.Div(
             ],
         ),
         html.Hr(),
-        dash_table.DataTable(
-            data=df.to_dict('records'),
-            id='table-item',
-            columns=[
-                {
-                'name': i, 'id': i
-            }
-            for i in (df.columns)
-            ],
-            filter_action='native',
-            page_action='native',
-            page_current=0,
-            page_size=20,
-            sort_action='native',
-            sort_mode='single',
-            style_cell={'textAlign': 'left'},
-            selected_columns=[],
-            selected_rows=[],
-        ),
-        html.Div(id='output-input-form'),
+        TableItem(),
+        #dash_table.DataTable(
+            #data=df.to_dict('records'),
+            #id='table-item',
+            #columns=[
+            #    {
+            #    'name': i, 'id': i
+            #}
+            #for i in (df.columns)
+            #],
+            #filter_action='native',
+            #page_action='native',
+            #page_current=0,
+            #page_size=20,
+            #sort_action='native',
+            #sort_mode='single',
+            #style_cell={'textAlign': 'left'},
+            #selected_columns=[],
+           # selected_rows=[],
+        #),
+        #html.Div(id='output-input-form'),
     ],
     style=CONTENT_STYLE
 )
@@ -223,7 +234,7 @@ def toggle_modal(n1, n2, is_open):
         return not is_open
     return is_open
 
-# callback to add new item to table
+# callback to add new item to df + item.csv
 @app.callback(
     Output('output-input-form', 'children'),
     [Input('submit-new-item', 'n_clicks')],
@@ -236,24 +247,12 @@ def toggle_modal(n1, n2, is_open):
 )
 def add_item(n, name, category, price, quantity, date):
     if n:
-        try:
-            #print(name)
-            conn = sql.connect('data.db')
-            c = conn.cursor()
-            c.execute(
-                'INSERT INTO items (name, category, price, quantity, date) VALUES (?,?,?,?,?)',
-                [
-                name, category, price, quantity, date
-                ]
-            )
-            conn.commit()
-        except Error as e:
-            print(e)
-        finally:
-            #print(pd.read_sql_query('SELECT * FROM items', con=conn))
-            print(df)
-            conn.close()
-    #return name, category, price, quantity, date
+        df = pd.read_csv("data/items.csv")
+        new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
+        df = df.append(new_row, ignore_index=True)
+        df.to_csv("data/items.csv", index=False)
+        print(df)
+      # left off here - how to update tbl when add new record without showing it twice on windwow??
 
 if __name__ == '__main__':
     app.run_server(debug=True)
