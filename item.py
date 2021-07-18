@@ -1,6 +1,5 @@
 # item.py
 import dash
-from dash_bootstrap_components._components.Button import Button
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -9,43 +8,17 @@ import dash_table
 from app import app
 from dash.dependencies import Input, Output, State
 from dash_table import FormatTemplate
-import db
-import sqlite3 as sql
-from sqlite3 import Error
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app.config.suppress_callback_exceptions = True
 
-#df = db.df
 df = pd.read_csv("data/items.csv")
-#print(df)
 
 CONTENT_STYLE = {
     'margin-left': '25%',
     'margin-right': '5%',
     'padding': '20px 10px'
 }
-
-def TableItem():
-    table_item = dash_table.DataTable(
-        data=df.to_dict('records'),
-        id='table-item',
-        columns=[
-            {
-            'name': i, 'id': i
-        }
-        for i in (df.columns)
-        ],
-        filter_action='native',
-        page_action='native',
-        page_current=0,
-        page_size=20,
-        sort_action='native',
-        sort_mode='single',
-        style_cell={'textAlign': 'left'},
-        selected_columns=[],
-        selected_rows=[],
-    )
-    return table_item
 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 # create form with inputs to add new item
@@ -110,23 +83,13 @@ def InputItem():
                 id='date',
                 month_format='MMM Do, YY'
             ),
-            html.Br(),
-            html.Br(),
             html.Div(id='output-date'),
-            html.Div(id='output-input-form'),
-            #dbc.Button(
-            #    id='submit_item',
-            #    n_clicks=0,
-            #    children='Submit',
-            #    color='primary',
-            #    block=True,
-            #    style={'width': '40%'}
-            #),
+            html.Br(),
+            html.Br(),
+            html.Div(id='output-input-form')
         ]
     )
     return input_addItem
-
-money = FormatTemplate.money(2)
 
 # create add item table attributes
 app.layout = html.Div(
@@ -134,7 +97,6 @@ app.layout = html.Div(
         html.Br(),
         html.Br(),
         html.H5('Grocery Items'),
-        #html.Button('New Item', id='button-new-item', n_clicks=0),
         html.Div(
             [
             dbc.Button(
@@ -162,26 +124,27 @@ app.layout = html.Div(
             ],
         ),
         html.Hr(),
-        TableItem(),
-        #dash_table.DataTable(
-            #data=df.to_dict('records'),
-            #id='table-item',
-            #columns=[
-            #    {
-            #    'name': i, 'id': i
-            #}
-            #for i in (df.columns)
-            #],
-            #filter_action='native',
-            #page_action='native',
-            #page_current=0,
-            #page_size=20,
-            #sort_action='native',
-            #sort_mode='single',
-            #style_cell={'textAlign': 'left'},
-            #selected_columns=[],
-           # selected_rows=[],
-        #),
+        html.Div(id='output-layout'),
+        dash_table.DataTable(
+            data=df.to_dict('records'),
+            id='table-item',
+            columns=[
+                {
+                'name': i, 'id': i
+            }
+            for i in (df.columns)
+            ],
+            filter_action='native',
+            page_action='native',
+            page_current=0,
+            page_size=20,
+            sort_action='native',
+            sort_mode='single',
+            sort_by=[{'column_id': 'date', 'direction': 'desc'}],
+            style_cell={'textAlign': 'left'},
+            selected_columns=[],
+            selected_rows=[],
+        ),
         #html.Div(id='output-input-form'),
     ],
     style=CONTENT_STYLE
@@ -210,18 +173,6 @@ def CollapseItem():
         ]
     )
     return collapse_addItem
-'''
-# Ref: https://dash.plotly.com/datatable/callbacks
-# callback for table paging
-@app.callback(
-    Output('table-item', 'data'),
-    [Input('table-item', 'page_current')],
-    [Input('table-item', 'page_size')]
-)
-def update_table(page_current, page_size):
-    return df.iloc[
-        page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
-'''
 
 # callback for modal
 @app.callback(
@@ -234,9 +185,9 @@ def toggle_modal(n1, n2, is_open):
         return not is_open
     return is_open
 
-# callback to add new item to df + item.csv
+# callback to add new item to df + item.csv and update table with new row on submit
 @app.callback(
-    Output('output-input-form', 'children'),
+    Output('table-item', 'data'),
     [Input('submit-new-item', 'n_clicks')],
     [State('name', 'value'),
     State('category', 'value'),
@@ -246,13 +197,35 @@ def toggle_modal(n1, n2, is_open):
     ]
 )
 def add_item(n, name, category, price, quantity, date):
-    if n:
+    ctx = dash.callback_context
+    input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    if input_id == 'submit-new-item':
         df = pd.read_csv("data/items.csv")
         new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
         df = df.append(new_row, ignore_index=True)
         df.to_csv("data/items.csv", index=False)
         print(df)
-      # left off here - how to update tbl when add new record without showing it twice on windwow??
+        return df.to_dict('records')
+    else:
+        return dash.no_update
+
+
+'''
+# callback to clear modal inputs
+@app.callback(
+    Output('name', 'value'),
+    Output('category', 'value'),
+    Output('price', 'value'),
+    Output('quantity', 'value'),
+    Output('date', 'date'),
+    [Input('submit-new-item', 'n_clicks')]
+)
+def clear_input(n):
+    if n:
+        return ''
+'''
+# HERE: NEED TO GET MODAL TO CLEAR VALUES ON SUBMIT & PUT IN MESSAGES IF VALUES ARE EMPTY
+
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True)#, dev_tools_hot_reload=False)
