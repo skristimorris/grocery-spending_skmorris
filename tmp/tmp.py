@@ -40,3 +40,37 @@ fig = px.bar(df, x="year-month", y="price", color="category", barmode="group")
 print(df)
 conn.close()
 '''
+
+'''
+# callback to add new item to table - SQL
+@app.callback(
+    Output('output-input-form', 'children'),
+    [Input('submit-new-item', 'n_clicks')],
+    [State('name', 'value'),
+    State('category', 'value'),
+    State('price', 'value'),
+    State('quantity', 'value'),
+    State('date', 'date')
+    ]
+)
+def add_item(n, name, category, price, quantity, date):
+    if n:
+        try:
+            #print(name)
+            conn = sql.connect('data.db')
+            c = conn.cursor()
+            c.execute(
+                'INSERT INTO items (name, category, price, quantity, date) VALUES (?,?,?,?,?)',
+                [
+                name, category, price, quantity, date
+                ]
+            )
+            conn.commit()
+        except Error as e:
+            print(e)
+        finally:
+            #print(pd.read_sql_query('SELECT * FROM items', con=conn))
+            print(df)
+            conn.close()
+    #return name, category, price, quantity, date
+'''    
