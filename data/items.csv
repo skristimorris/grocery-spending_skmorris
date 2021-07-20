@@ -1,0 +1,64 @@
+name,category,price,quantity,date
+Sparkling Water,Beverages,5.79,4.0,2021-05-04
+Energy Drinks,Beverages,8.49,1.0,2021-05-19
+Diet Coke,Beverages,6.49,1.0,2021-05-30
+Sparkling Water,Beverages,5.79,1.0,2021-05-30
+Gummy Bears,Candy,1.99,1.0,2021-05-04
+Reese's Cups,Candy,1.19,1.0,2021-05-04
+Twizzlers,Candy,1.99,1.0,2021-05-04
+Gummy Bears,Candy,1.99,1.0,2021-05-19
+Reese's Cups,Candy,1.19,1.0,2021-05-19
+Gummy Bears,Candy,1.99,1.0,2021-05-30
+Reese's Cups,Candy,1.19,1.0,2021-05-30
+2% Milk,Dairy,2.59,1.0,2021-05-04
+Sharp Cheddar Cheese,Dairy,3.49,1.0,2021-05-30
+Hot Dogs,Meat,3.99,1.0,2021-05-04
+Chicken Breast,Meat,6.29,1.0,2021-05-19
+Strawberries,Produce,3.0,1.0,2021-05-04
+Broccoli,Produce,2.5,1.0,2021-05-19
+Carrots,Produce,2.99,1.0,2021-05-30
+Romaine Lettuce,Produce,2.49,1.0,2021-05-30
+Cheetos,Snacks,3.49,1.0,2021-05-04
+Cool Ranch Doritos,Snacks,4.29,1.0,2021-05-04
+Fritos,Snacks,3.49,1.0,2021-05-04
+Graham Crackers,Snacks,3.79,1.0,2021-05-04
+Oreo Cookies,Snacks,3.19,1.0,2021-05-04
+Animal Crackers,Snacks,3.99,1.0,2021-05-19
+Cheez-It Crackers,Snacks,2.5,1.0,2021-05-19
+Cool Ranch Doritos,Snacks,4.29,1.0,2021-05-19
+Lays Potato Chips,Snacks,3.99,1.0,2021-05-19
+Lays Potato Chips,Snacks,3.99,1.0,2021-05-19
+Animal Crackers,Snacks,3.99,1.0,2021-05-30
+Goldfish,Snacks,2.99,1.0,2021-05-30
+Oreo Cookies,Snacks,3.19,1.0,2021-05-30
+Sparkling Water,Beverages,5.79,1.0,2021-06-10
+2% Milk,Dairy,2.59,1.0,2021-06-10
+Cool Ranch Doritos,Snacks,4.29,1.0,2021-06-10
+Goldfish,Snacks,2.99,1.0,2021-06-10
+Gummy Bears,Candy,1.99,1.0,2021-06-10
+Lays Potato Chips,Snacks,3.99,1.0,2021-06-10
+Oreo Cookies,Snacks,3.19,1.0,2021-06-10
+Reese's Cups,Candy,1.19,1.0,2021-06-10
+Twizzlers,Candy,1.99,1.0,2021-06-10
+Energy Drinks,Beverages,8.49,1.0,2021-06-21
+Hazelnut Coffee Creamer,Dairy,3.79,1.0,2021-06-21
+Pork Chops,Meat,6.99,1.0,2021-06-21
+Broccoli,Produce,2.5,1.0,2021-06-21
+Cheez-It Crackers,Snacks,2.5,1.0,2021-06-21
+Chex Mix,Snacks,1.39,1.0,2021-06-21
+Graham Crackers,Snacks,3.79,1.0,2021-06-21
+Gummy Bears,Candy,1.99,1.0,2021-06-21
+Lays Potato Chips,Snacks,3.99,1.0,2021-06-21
+Reese's Cups,Candy,1.19,1.0,2021-06-21
+Energy Drinks,Beverages,8.49,1.0,2021-06-28
+Sparkling Water,Beverages,5.79,1.0,2021-06-28
+Sour Cream,Dairy,1.99,1.0,2021-06-28
+Ground Beef,Meat,6.99,1.0,2021-06-28
+Asparagus,Produce,2.99,1.0,2021-06-28
+Cheetos,Snacks,3.49,1.0,2021-06-28
+Chex Mix,Snacks,1.39,1.0,2021-06-28
+Goldfish,Snacks,2.99,1.0,2021-06-28
+Gummy Bears,Candy,1.99,1.0,2021-06-28
+Reese's Cups,Candy,1.19,1.0,2021-06-28
+Brownies,Snacks,4.49,1.0,2021-06-21
+Diet Coke,Beverages,1.99,1.0,2021-06-21
