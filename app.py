@@ -14,10 +14,12 @@ from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import numpy as np
 
-df = pd.read_csv("data/items.csv")
+df = pd.read_csv('data/items.csv')
 df['total'] = df['price'] * df['quantity']
 df1 = df.query('date == "2021-05-19"')
 #print(df1)
+
+df_cat = pd.read_csv('data/category.csv')
 
 '''
 table_1 = pd.pivot_table(df, index=['name'], values=['total'], aggfunc=np.sum)
@@ -81,12 +83,24 @@ def InputDashboard():
             html.P('Category', style={
                 'textAlign': 'left'
             }),
-            dcc.Dropdown(
+            dcc.Checklist(
+                id='dash-category-all',
+                options=[
+                    {'label': 'Select All', 'value': 1}
+                ],
+                value=[],
+                #style={'float': 'left'},
+                labelStyle={'display': 'block'}
+                #multi=True,
+            ),
+            dcc.Checklist(
                 id='dash-category',
                 options=[
-                    {'label': i, 'value': i} for i in sorted(df.category.unique())
+                    {'label': i, 'value': i} for i in sorted(df_cat.Category)
                 ],
-                multi=True,
+                #style={'float': 'left'},
+                labelStyle={'display': 'block'}
+                #multi=True,
             ),
             html.Br(),
             html.P('Date', style={
@@ -257,13 +271,11 @@ def GraphLayout():
                 [
                     dbc.Col(
                         [
-                            html.H6('heading1'),
                             dcc.Graph(id='graph-1')
                         ]
                     ),
                     dbc.Col(
                         [
-                            html.H6('heading2'),
                             dcc.Graph(
                             id='graph-2',
                     )
@@ -381,13 +393,31 @@ dashboard = html.Div(
     style=CONTENT_STYLE
 )
 
-# callback to display graph 1
+# callback to select all category values
+@app.callback(
+    Output('dash-category', 'value'),
+    [Input('dash-category-all', 'value')],
+    [State('dash-category', 'options'),
+    State('dash-category', 'value')]
+)
+def select_all(selected, options, value):
+    if selected[0] == 1:
+        return [i['value'] for i in options]
+    else: 
+        return value
+
+# callback to display graph 1 - WORK ON THIS
 @app.callback(
     Output('graph-1', 'figure'),
     [Input('dash-category', 'value')]
 )
 def update_graph_1(category):
-    fig = px.bar(df.query('category ==category'), x='date', y='price', color='category', barmode='group')
+    fig = px.bar(df.query('category == @category'), x='date', y='price', color='category', barmode='group', 
+        title= 'Spending per Category',
+        labels={
+            'category': 'Category', 'price': 'Total Amount', 'date': 'Date of Purchase'
+        }
+    )
     return fig
 
 
