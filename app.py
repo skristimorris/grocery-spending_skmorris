@@ -86,7 +86,7 @@ def InputDashboard():
             dcc.Checklist(
                 id='dash-category-all',
                 options=[
-                    {'label': 'Select All', 'value': 1}
+                    {'label': 'Select All', 'value': 'all'}
                 ],
                 value=[],
                 #style={'float': 'left'},
@@ -98,6 +98,7 @@ def InputDashboard():
                 options=[
                     {'label': i, 'value': i} for i in sorted(df_cat.Category)
                 ],
+                value=[1],
                 #style={'float': 'left'},
                 labelStyle={'display': 'block'}
                 #multi=True,
@@ -392,19 +393,17 @@ dashboard = html.Div(
     ],
     style=CONTENT_STYLE
 )
-
+# Ref: https://community.plotly.com/t/check-all-elements-of-dcc-checklist/40854/2
 # callback to select all category values
 @app.callback(
     Output('dash-category', 'value'),
     [Input('dash-category-all', 'value')],
-    [State('dash-category', 'options'),
-    State('dash-category', 'value')]
+    [State('dash-category', 'options')]
 )
-def select_all(selected, options, value):
-    if selected[0] == 1:
-        return [i['value'] for i in options]
-    else: 
-        return value
+def select_all(all_selected, options):
+    selected = []
+    selected = [option['value'] for option in options if all_selected]
+    return selected
 
 # callback to display graph 1 - WORK ON THIS
 @app.callback(
