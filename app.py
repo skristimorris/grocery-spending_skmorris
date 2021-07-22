@@ -3,6 +3,7 @@
 import dash
 from dash_bootstrap_components._components.Row import Row
 import dash_core_components as dcc
+from dash_core_components.Dropdown import Dropdown
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
@@ -16,8 +17,13 @@ import numpy as np
 
 df = pd.read_csv('data/items.csv')
 df['total'] = df['price'] * df['quantity']
-df1 = df.query('date == "2021-05-19"')
-#print(df1)
+df['date'] = pd.to_datetime(df['date'])
+#print(df.dtypes)
+#df2 = df.groupby(df['date'].dt.strftime('%B'))['price'].sum().sort_values()
+df2 = df.groupby(pd.Grouper(key='date',freq='1M')).sum()
+df2.index = df2.index.strftime('%B')
+
+print(df2)
 
 df_cat = pd.read_csv('data/category.csv')
 
@@ -40,8 +46,6 @@ graph1 = dcc.Graph(
     }
 )
 '''
-#THIS WORKS
-figure=px.bar(df.query('date == "2021-05-19"'), x='category', y='price', color='category', barmode='group')
 
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -72,6 +76,16 @@ def InputDashboard():
             html.P('Item Name', style={
                 'textAlign': 'left'
             }),
+            dcc.Checklist(
+                id='dash-name-all',
+                options=[
+                    {'label': 'Select All', 'value': 'all'}
+                ],
+                value=[],
+                #style={'float': 'left'},
+                labelStyle={'display': 'block'}
+                #multi=True,
+            ),
             dcc.Dropdown(
                 id='dash-name',
                 options=[
@@ -93,15 +107,15 @@ def InputDashboard():
                 labelStyle={'display': 'block'}
                 #multi=True,
             ),
-            dcc.Checklist(
+            dcc.Dropdown(
                 id='dash-category',
                 options=[
                     {'label': i, 'value': i} for i in sorted(df_cat.Category)
                 ],
                 value=[1],
                 #style={'float': 'left'},
-                labelStyle={'display': 'block'}
-                #multi=True,
+                #labelStyle={'display': 'block'},
+                multi=True,
             ),
             html.Br(),
             html.P('Date', style={
@@ -277,9 +291,7 @@ def GraphLayout():
                     ),
                     dbc.Col(
                         [
-                            dcc.Graph(
-                            id='graph-2',
-                    )
+                            dcc.Graph(id='graph-2')
                         ]
                     ),
                 ]
@@ -393,6 +405,19 @@ dashboard = html.Div(
     ],
     style=CONTENT_STYLE
 )
+
+# Ref: https://community.plotly.com/t/check-all-elements-of-dcc-checklist/40854/2
+# callback to select all name values
+@app.callback(
+    Output('dash-name', 'value'),
+    [Input('dash-name-all', 'value')],
+    [State('dash-name', 'options')]
+)
+def select_all(all_selected, options):
+    selected = []
+    selected = [option['value'] for option in options if all_selected]
+    return selected
+
 # Ref: https://community.plotly.com/t/check-all-elements-of-dcc-checklist/40854/2
 # callback to select all category values
 @app.callback(
