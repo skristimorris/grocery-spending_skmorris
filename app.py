@@ -33,7 +33,7 @@ print(df)
 #df_date = df.groupby(pd.Grouper(key='date', freq='M', sort=True)).sum()
 #df_date.index = df_date.index.strftime('%B %Y')
 #print(df_date)
-df_group = df.groupby(['month_year', 'category']).sum().sort_values
+df_group = df.groupby(['month_year', 'category']).sum().sort_values(by=['month_year'], ascending=False)
 print(df_group)
 
 df_cat = pd.read_csv('data/category.csv')
@@ -424,16 +424,17 @@ def select_all(all_selected, options):
     selected = [option['value'] for option in options if all_selected]
     return selected
 
-# callback to display graph 1
+# callback to display graph 1 - work on this monthyear not pulling graph info
 @app.callback(
     Output('graph-1', 'figure'),
-    [Input('dash-category', 'value')]
+    [Input('dash-category', 'value'),
+    Input('dash-monthyear', 'value')]
 )
-def update_graph_1(category):
-    fig = px.bar(df.query('category == @category'), x='date', y='price', color='category', barmode='group', 
-        title= 'Spending per Category',
+def update_graph_1(category, monthyear):
+    fig = px.bar(df.query('category == @category'), x='month_year', y='price', color='category', barmode='group', 
+        title= 'Spending per Category by Month',
         labels={
-            'category': 'Category', 'price': 'Total Amount', 'date': 'Date of Purchase'
+            'category': 'Category', 'price': 'Total Amount', 'month_year': 'Month of Purchase'
         }
     )
     return fig
