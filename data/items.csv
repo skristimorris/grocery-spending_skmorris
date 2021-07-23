@@ -1,5 +1,5 @@
 name,category,price,quantity,date
-Sparkling Water,Beverages,5.79,4.0,2021-05-04
+Sparkling Water,Beverages,5.79,1.0,2021-05-04
 Energy Drinks,Beverages,8.49,1.0,2021-05-19
 Diet Coke,Beverages,6.49,1.0,2021-05-30
 Sparkling Water,Beverages,5.79,1.0,2021-05-30
@@ -62,3 +62,4 @@ Gummy Bears,Candy,1.99,1.0,2021-06-28
 Reese's Cups,Candy,1.19,1.0,2021-06-28
 Brownies,Snacks,4.49,1.0,2021-06-21
 Diet Coke,Beverages,1.99,1.0,2021-06-21
+Cupcakes,Snacks,3.99,1.0,2021-07-22
