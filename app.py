@@ -17,13 +17,24 @@ import numpy as np
 
 df = pd.read_csv('data/items.csv')
 df['total'] = df['price'] * df['quantity']
-df['date'] = pd.to_datetime(df['date'])
-#print(df.dtypes)
-#df2 = df.groupby(df['date'].dt.strftime('%B'))['price'].sum().sort_values()
-df2 = df.groupby(pd.Grouper(key='date',freq='1M')).sum()
-df2.index = df2.index.strftime('%B')
+df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
 
-print(df2)
+#df['month_year'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
+#df['month_year'] = pd.to_datetime(df['date']).dt.to_period('M')
+print(df)
+
+#df_group = df.groupby('month_year')['category'].sum().to_frame().reset_index()#
+#print(df_group)
+
+
+#print(df.dtypes)
+#df1 = df.groupby(df['date'].dt.strftime('%B %Y'))['total'].sum()
+#df_date = df.groupby([(pd.Grouper(key='date', freq='M', sort=True)), 'category'], as_index=False).sum()
+#df_date = df.groupby(pd.Grouper(key='date', freq='M', sort=True)).sum()
+#df_date.index = df_date.index.strftime('%B %Y')
+#print(df_date)
+df_group = df.groupby(['month_year', 'category']).sum().sort_values
+print(df_group)
 
 df_cat = pd.read_csv('data/category.csv')
 
@@ -32,20 +43,7 @@ table_1 = pd.pivot_table(df, index=['name'], values=['total'], aggfunc=np.sum)
 table_1 = table_1.sort_values(('total'), ascending=False)
 #print(table_1)
 '''
-'''
-df_1 = df.query('date == "2021-05-19"')
-pv_1 = pd.pivot_table(df, index=['category'], values=['total'], aggfunc=np.sum)
-#pv_1 = pv_1.sort_values(('total'), ascending=False)
-trace1 = go.Bar(x=pv_1.index, y=pv_1.values, name='Total')
-#trace1 = px.bar(df.query('date == "2021-05-19"'), x='category', y='price', color='category', barmode='group')
-graph1 = dcc.Graph(
-    id='graph-1',
-    figure={
-        'data': [trace1],
-        'layout': go.Layout(title='Total Spent on', barmode='stack')
-    }
-)
-'''
+
 
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -126,6 +124,26 @@ def InputDashboard():
                 options=[
                     {'label': i, 'value': i} for i in sorted(df.date.unique())
                 ],
+                multi=True,
+            ),
+            dcc.Checklist(
+                id='dash-monthyear-all',
+                options=[
+                    {'label': 'Select All', 'value': 'all'}
+                ],
+                value=[],
+                #style={'float': 'left'},
+                labelStyle={'display': 'block'}
+                #multi=True,
+            ),
+            dcc.Dropdown(
+                id='dash-monthyear',
+                options=[
+                    {'label': i, 'value': i} for i in sorted(df.month_year.unique())
+                ],
+                value=[1],
+                #style={'float': 'left'},
+                #labelStyle={'display': 'block'},
                 multi=True,
             ),
             html.Br(),
@@ -244,21 +262,7 @@ dbc.Row(
 ),
 ])
 
-'''
-#this works
-# create graphs for dashboard
-def GenerateGraphs():
-    generate_graphs = html.Div(
-        [
-            dbc.Col(dcc.Graph(
-                id='graph_1',
-                figure = px.bar(df, x="date", y="price", color="category", barmode="group"),
-            )
-            )
-        ]
-    )
-    return generate_graphs
-    '''
+
 '''
 # top 10 items
 # Ref: https://pbpython.com/pandas-pivot-table-explained.html
@@ -298,34 +302,24 @@ def GraphLayout():
             ),
             dbc.Row(
                 dbc.Col(
-                        dcc.Graph(
-                        id='graph-4',
-                        figure=px.bar(df, x='date', y='price', color='category', barmode='group'),
-                        ),
+                        dcc.Graph(id='graph-3')
                     )
                 ),
             dbc.Row(
                 [
                     dbc.Col(
-                        dcc.Graph(
-                        id='graph-5',
-                        figure=px.bar(df, x='date', y='price', color='category', barmode='group'),
-                    )
+                        dcc.Graph(id='graph-4')
                     ),
                     dbc.Col(
-                        dcc.Graph(
-                        id='graph-6',
-                        figure=px.bar(df, x='date', y='price', color='category', barmode='group'),
-                    )
+                        dcc.Graph(id='graph-5')
                     ),
                 ]
             ),
             dbc.Row(
                 dbc.Col(
-                        #graph1,
-                        #figure=px.bar(df.query('date == "2021-05-19"'), x='category', y='price', color='category', barmode='group')
-                    )
+                        dcc.Graph(id='graph-6')
                 ),
+            )
         ]
     )
     return graph_layout
@@ -430,7 +424,7 @@ def select_all(all_selected, options):
     selected = [option['value'] for option in options if all_selected]
     return selected
 
-# callback to display graph 1 - WORK ON THIS
+# callback to display graph 1
 @app.callback(
     Output('graph-1', 'figure'),
     [Input('dash-category', 'value')]
@@ -443,11 +437,6 @@ def update_graph_1(category):
         }
     )
     return fig
-
-
-
-#THIS WORKS
-figure=px.bar(df.query('date == "2021-05-19"'), x='category', y='price', color='category', barmode='group')
 
 
 # callback for modal
@@ -488,7 +477,6 @@ def add_item(n, name, category, price, quantity, date):
     else:
         return dash.no_update
         
-
 app.layout = html.Div([navbar, sidebar, dashboard])
 
 if __name__ == '__main__':   
