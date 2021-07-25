@@ -1,16 +1,15 @@
 # app.py
 
+from __future__ import annotations
+from functools import total_ordering
 import dash
-from dash_bootstrap_components._components.Row import Row
 import dash_core_components as dcc
-from dash_core_components.Dropdown import Dropdown
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import plotly.express as px
 import pandas as pd
 import dash_table
-from dash_table import FormatTemplate
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import numpy as np
@@ -68,8 +67,8 @@ SIDEBAR_STYLE = {
 }
 
 # create form with inputs to filter dashboard
-def InputDashboard():
-    input_dashboard = dbc.FormGroup(
+def FilterDashboard():
+    filter_dashboard = dbc.FormGroup(
         [
             html.P('Item Name', style={
                 'textAlign': 'left'
@@ -158,7 +157,7 @@ def InputDashboard():
             #)
         ]
     )
-    return input_dashboard
+    return filter_dashboard
 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 # create form with inputs to add new item
@@ -287,6 +286,11 @@ def GraphLayout():
     graph_layout = html.Div(
         [
             dbc.Row(
+                dbc.Col(
+                        dcc.Graph(id='graph-3')
+                    )
+                ),
+            dbc.Row(
                 [
                     dbc.Col(
                         [
@@ -300,11 +304,6 @@ def GraphLayout():
                     ),
                 ]
             ),
-            dbc.Row(
-                dbc.Col(
-                        dcc.Graph(id='graph-3')
-                    )
-                ),
             dbc.Row(
                 [
                     dbc.Col(
@@ -379,7 +378,7 @@ sidebar = html.Div(
     html.Br(),
     html.H5('Filter Criteria', style={'textAlign': 'left'}),
     html.Hr(),
-    InputDashboard(),
+    FilterDashboard(),
     ],
     style=SIDEBAR_STYLE
 )
@@ -424,21 +423,53 @@ def select_all(all_selected, options):
     selected = [option['value'] for option in options if all_selected]
     return selected
 
-# callback to display graph 1 - work on this monthyear not pulling graph info
+# callback to display graph 1
 @app.callback(
     Output('graph-1', 'figure'),
     [Input('dash-category', 'value'),
     Input('dash-monthyear', 'value')]
 )
-def update_graph_1(category, monthyear):
-    fig = px.bar(df.query('category == @category'), x='month_year', y='price', color='category', barmode='group', 
+def update_graph_1(category, month_year):
+    fig = px.bar(df.query('category == @category and month_year == @month_year'), x='month_year', y='price', color='category', barmode='group', 
         title= 'Spending per Category by Month',
         labels={
             'category': 'Category', 'price': 'Total Amount', 'month_year': 'Month of Purchase'
         }
     )
+    print(month_year)
     return fig
 
+# Ref: https://plotly.com/python/pie-charts/
+# callback to display graph 3 - work on this monthyear not pulling graph info
+@app.callback(
+    Output('graph-3', 'figure'),
+    [Input('dash-monthyear', 'value')]
+)
+def update_graph_3(month_year):
+    query_graph3 = df.query('month_year == @month_year')
+    fig = px.pie(df.query('month_year == @month_year'), 
+        values='total', 
+        names='category', 
+        title= 'Spending per Category for {}'.format(month_year),
+        hole= .5,
+        labels={
+            'category': 'Category', 'total': 'Total Amount'
+        }
+    )
+    fig.update_traces(
+        hoverinfo='label+percent', 
+        #text=['$' + total for total in fig.total.values],
+        textinfo='value'
+    )
+    fig.update_layout(
+        annotations= [
+            #dict(text= 'Spending per Category', x=0.5, y=0.7, font_size=10, showarrow=False),
+            #dict(text= 'for {}'.format(month_year), x=0.5, y=0.5, font_size=10, showarrow=False),
+            dict(text= 'Total Amount: $', x=0.5, y=0.3, font_size=10, showarrow=False)
+            ]
+    )
+    #print(query_graph3)
+    return fig
 
 # callback for modal
 @app.callback(
