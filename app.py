@@ -7,6 +7,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
+from dash_table.DataTable import DataTable
 import plotly.express as px
 import pandas as pd
 import dash_table
@@ -55,13 +56,14 @@ table_1 = table_1.sort_values(('total'), ascending=False)
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config.suppress_callback_exceptions = True
-
+'''
 # content style attributes
 CONTENT_STYLE = {
     'margin-left': '25%',
     'margin-right': '5%',
     'padding': '20px 10px'
 }
+'''
 '''
 # sidebar style attributes
 SIDEBAR_STYLE = {
@@ -99,20 +101,20 @@ def FilterDashboard():
             #    ],
             #    multi=True,
             #),
-            #html.Br(),
+            html.Br(),
             html.P('Category', style={
                 'textAlign': 'left'
             }),
-            dcc.Checklist(
-                id='dash-category-all',
-                options=[
-                    {'label': 'Select All', 'value': 'all'}
-                ],
-                value=[],
-                #style={'float': 'left'},
-                labelStyle={'display': 'block'}
-                #multi=True,
-            ),
+            #dcc.Checklist(
+            #    id='dash-category-all',
+            #    options=[
+            #        {'label': 'Select All', 'value': 'all'}
+            #    ],
+            #    value=[],
+            #    #style={'float': 'left'},
+            #    labelStyle={'display': 'block'}
+            #    #multi=True,
+            #),
             dcc.Dropdown(
                 id='dash-category',
                 options=[
@@ -121,7 +123,7 @@ def FilterDashboard():
                 value=[1],
                 #style={'float': 'left'},
                 #labelStyle={'display': 'block'},
-                multi=True,
+            #    multi=True,
             ),
             html.Br(),
             html.P('Date', style={
@@ -292,50 +294,58 @@ def GenerateGraph_1():
 # work on this = graph layout
 # Ref: https://dash.plotly.com/dash-core-components/graph
 # create graph layout
-def GraphLayout():
-    graph_layout = html.Div(
+dashboard = html.Div(
         [
-            dbc.Row(
-                [
-                dbc.Col(
-                        dcc.Graph(id='graph-3')
-                    ),
-                #dbc.Col(
-                        #dbc.Table(id='graph-4')
-                    #)
-                ]
-                ),
+            html.Br(),
+            html.Br(),
+            html.H5('Dashboard', style={'textAlign': 'left'}),
             html.Hr(),
             dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dcc.Graph(id='graph-1')
-                        ]
-                    ),
-                    dbc.Col(
-                        [
-                            dcc.Graph(id='graph-2')
-                        ]
-                    ),
-                ]
-            ),
+                dcc.Graph(id='graph-spending-all')
+                ),
+            html.H5('Category', style={'textAlign': 'left'}),
+            html.Hr(),
             dbc.Row(
-                [
-                    dbc.Col(
-                        dcc.Graph(id='graph-5')
-                    ),
-                ]
-            ),
+                dcc.Graph(id='graph-spending-category')
+                ),
+            html.H5('Transactions', style={'textAlign': 'left'}),
+            html.Hr(),
             dbc.Row(
-                dbc.Col(
+                dash_table.DataTable(
+                    id='table-spending-category',
+                    data=df.to_dict('records'),
+                    columns=[
+                        {
+                        'name': i, 'id': i
+                        }
+                        for i in (df.columns)
+                        ],
+                    filter_action='native',
+                    page_action='native',
+                    page_current=0,
+                    page_size=20,
+                    sort_action='native',
+                    sort_mode='single',
+                    sort_by=[{'column_id': 'date', 'direction': 'desc'}],
+                    style_cell={'textAlign': 'left'},
+                    selected_columns=[],
+                    selected_rows=[],
+                    )
+                ),
+            html.H5('Trends', style={'textAlign': 'left'}),
+            html.Hr(),
+            dbc.Row(
                         dcc.Graph(id='graph-6')
                 ),
-            )
-        ]
-    )
-    return graph_layout
+        ],
+        style={
+            'margin-left': '25%',
+            'margin-right': '5%',
+            'padding': '20px 10px'
+        }
+)
 
+'''
 # create table for dashboard
 def GenerateTable():
     generate_table = html.Div(
@@ -363,6 +373,7 @@ def GenerateTable():
         ]
     )
     return generate_table
+    '''
 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/navbar/#
 navbar = dbc.Navbar(
@@ -403,7 +414,7 @@ sidebar = html.Div(
         'background-color': '#f8f9fa'
     }
 )
-
+'''
 # create dashboard layout
 dashboard = html.Div(
     [
@@ -412,13 +423,15 @@ dashboard = html.Div(
     html.H5('Dashboard', style={'textAlign': 'left'}),
     html.Hr(),
     GraphLayout(),
-    html.Br(),
-    html.H5('Grocery Items'),
-    html.Hr(),
-    GenerateTable(),
+    #html.Br(),
+    #html.H5('Grocery Items'),
+    #html.Hr(),
+    #GenerateTable(),
     ],
     style=CONTENT_STYLE
 )
+'''
+
 '''
 # Ref: https://community.plotly.com/t/check-all-elements-of-dcc-checklist/40854/2
 # callback to select all name values
@@ -432,7 +445,7 @@ def select_all(all_selected, options):
     selected = [option['value'] for option in options if all_selected]
     return selected
 '''
-
+'''
 # Ref: https://community.plotly.com/t/check-all-elements-of-dcc-checklist/40854/2
 # callback to select all category values
 @app.callback(
@@ -460,20 +473,21 @@ def update_graph_1(category, month_year):
     )
     print(month_year)
     return fig
+'''
 
 # Ref: https://plotly.com/python/pie-charts/
-# callback to display graph 3 - work on this monthyear not pulling graph info
+# callback to display graph for all categories
 @app.callback(
-    Output('graph-3', 'figure'),
+    Output('graph-spending-all', 'figure'),
     [Input('dash-monthyear', 'value')]
 )
-def update_graph_3(month_year):
+def update_graph_spending_all(month_year):
     #query_graph3 = df.query('month_year == @month_year').sum()
    
     fig = px.pie(df.query('month_year == @month_year'), 
         values='total', 
         names='category', 
-        title= 'Spending per Category for {}'.format(month_year),
+        title= 'Spending for All Categories in {}'.format(month_year),
         hole= .5,
         #labels={
             #'category': 'Category', 'total': 'Total Amount'
@@ -486,7 +500,7 @@ def update_graph_3(month_year):
     )
     fig.update_layout(
         annotations= [
-            dict(text= 'Total Amount <br> $', x=0.5, y=0.7, font_size=15, showarrow=False),
+            dict(text= 'Total Amount <br> $', x=0.5, y=0.5, font_size=15, showarrow=False),
             #dict(text= '$', x=0.5, y=0.5, font_size=15, showarrow=False),
             #dict(text= 'Total Amount: $', x=0.5, y=0.5, font_size=15, showarrow=False)
             ],
@@ -496,21 +510,86 @@ def update_graph_3(month_year):
     return fig
 '''
 # Ref: https://plotly.com/python/pie-charts/
-# callback to display graph 4 - work on this monthyear not pulling graph info
+# callback to display graph for selected category
 @app.callback(
-    Output('graph-4', 'children'),
-    [Input('dash-monthyear', 'value')]
+    Output('graph-spending-category', 'figure'),
+    [Input('dash-monthyear', 'value'),
+    Input('dash-category', 'value')]
 )
-def update_graph_4(month_year):
-    query_graph4 = df.query('month_year == @month_year')
-    df_group = pd.DataFrame(query_graph4.groupby(['month_year', 'category']).sum().sort_values(by=['month_year'], ascending=False))
-    df_group = df_group[['category, total']]
-    print(df_group)
-    #print(query_graph4)
-    return dbc.Table.from_dataframe(
-        df_group, striped=True, bordered=True, hover=True
+def update_graph_spending_category(month_year, category):
+    #query_graph3 = df.query('month_year == @month_year').sum()
+   
+    fig = px.pie(df.query('month_year == @month_year and category == @category'), 
+        values='total', 
+        names='name', 
+        title= 'Spending for {} in {}'.format(month_year),
+        hole= .5,
+        #labels={
+            #'category': 'Category', 'total': 'Total Amount'
+        #}
     )
+    fig.update_traces(
+        hoverinfo='label+percent', 
+        #text=['$' + total for total in fig.total.values],
+        textinfo='value'
+    )
+    fig.update_layout(
+        annotations= [
+            dict(text= 'Total Amount <br> $', x=0.5, y=0.5, font_size=15, showarrow=False),
+            #dict(text= '$', x=0.5, y=0.5, font_size=15, showarrow=False),
+            #dict(text= 'Total Amount: $', x=0.5, y=0.5, font_size=15, showarrow=False)
+            ],
+            legend_title='<b> Category </b>'
+    )
+    #print(query_graph3)
+    return fig
 '''
+'''
+# Ref: https://plotly.com/python/pie-charts/
+# callback to display graph for selected category & month
+@app.callback(
+    Output('table-spending-category', 'children'),
+    [Input('dash-monthyear', 'value'),
+    Input('dash-category', 'value')]
+)
+def update_graph_4(month_year, category):
+    df_category = pd.DataFrame(df.query('month_year == @month_year and category == @category'))
+    df_category = df_category[['name', 'price', 'quantity', 'total', 'date']]
+    print(df_category)
+    return dbc.Table.from_dataframe(df_category)
+'''
+
+# Ref: https://plotly.com/python/pie-charts/
+# callback to display graph for selected category & month - not updating table on dash page
+@app.callback(
+    Output('table-spending-category', 'data'),
+    [Input('dash-monthyear', 'value'),
+    Input('dash-category', 'value')]
+)
+def update_table(month_year, category):
+    df_category = pd.DataFrame(df.query('month_year == @month_year and category == @category'))
+    df_category = df_category[['name', 'price', 'quantity', 'total', 'date']]
+    print(df_category)
+    return dash_table.DataTable(
+            data=df_category.to_dict('records'),
+            columns=[
+                {
+                'name': i, 'id': i
+            }
+            for i in (df_category.columns)
+            ],
+            filter_action='native',
+            page_action='native',
+            page_current=0,
+            page_size=20,
+            sort_action='native',
+            sort_mode='single',
+            sort_by=[{'column_id': 'date', 'direction': 'desc'}],
+            style_cell={'textAlign': 'left'},
+            selected_columns=[],
+            selected_rows=[],
+        )
+
 # callback for modal
 @app.callback(
     Output('modal', 'is_open'),
