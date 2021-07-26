@@ -40,11 +40,20 @@ df_group = df.groupby(['month_year', 'category']).sum().sort_values(by=['month_y
 print(df_group)
 #print(df_group_total)
 
-df_cat = pd.read_csv('data/category.csv')
-
 today = date.today()
 current_MY = today.strftime('%B %Y')
 print(current_MY)
+
+'''
+df_default_cat = df.query('month_year ==@current_MY').head(1)
+df_default_cat = df_default_cat['category'].iloc[0]
+print(df_default_cat)
+'''
+
+
+df_cat = pd.read_csv('data/category.csv')
+
+
 
 '''
 table_1 = pd.pivot_table(df, index=['name'], values=['total'], aggfunc=np.sum)
@@ -115,16 +124,17 @@ def FilterDashboard():
             #    labelStyle={'display': 'block'}
             #    #multi=True,
             #),
-            dcc.Dropdown(
-                id='dash-category',
-                options=[
-                    {'label': i, 'value': i} for i in sorted(df_cat.Category)
-                ],
-                value=[1],
+#            dcc.Dropdown(
+#                id='dash-category',
+#                options=[
+#                    {'label': i, 'value': i} for i in sorted(df_cat.Category)
+#                ],
+#                value=df_default_cat
+                #value=[1],
                 #style={'float': 'left'},
                 #labelStyle={'display': 'block'},
             #    multi=True,
-            ),
+#            ),
             html.Br(),
             html.P('Date', style={
                 'textAlign': 'left'
@@ -146,17 +156,17 @@ def FilterDashboard():
             #    labelStyle={'display': 'block'}
             #    #multi=True,
             #),
-            dcc.Dropdown(
-                id='dash-monthyear',
-                options=[
-                    {'label': i, 'value': i} for i in sorted(df.month_year.unique())
-                ],
-                value=current_MY
+#            dcc.Dropdown(
+#                id='dash-monthyear',
+#                options=[
+#                    {'label': i, 'value': i} for i in sorted(df.month_year.unique())
+#                ],
+#                value=current_MY
                 #value=[1],
                 #style={'float': 'left'},
                 #labelStyle={'display': 'block'},
                 #multi=True,
-            ),
+#            ),
             html.Br(),
             html.Br(),
             #dbc.Button(
@@ -298,13 +308,40 @@ dashboard = html.Div(
         [
             html.Br(),
             html.Br(),
-            html.H5('Dashboard', style={'textAlign': 'left'}),
+            html.H5('Spending Dashboard', style={'textAlign': 'left'}),
             html.Hr(),
+            html.Div([
+                dcc.Dropdown(
+                    id='dash-monthyear',
+                    options=[
+                        {'label': i, 'value': i} for i in sorted(df.month_year.unique())
+                    ],
+                    value=current_MY,
+                )],
+                style={
+                    'width': '20%',
+                    'display': 'inline-block'
+                },
+            ),
             dbc.Row(
                 dcc.Graph(id='graph-spending-all')
                 ),
-            html.H5('Category', style={'textAlign': 'left'}),
+            #html.H5('Category', style={'textAlign': 'left'}),
             html.Hr(),
+            html.Div([
+                dcc.Dropdown(
+                id='dash-category',
+                #options=[
+                #    {'label': i, 'value': i} for i in sorted(df_cat.Category)
+                #],
+                #value=''
+                )
+            ],
+                style={
+                    'width': '20%',
+                    'display': 'inline-block'
+                },
+            ),
             dbc.Row(
                 dcc.Graph(id='graph-spending-category')
                 ),
@@ -387,7 +424,7 @@ navbar = dbc.Navbar(
                 no_gutters=True,
             ),
         ),
-        button_item,
+        #button_item,
     ],
     color="dark",
     dark=True,
@@ -400,9 +437,10 @@ sidebar = html.Div(
     [
     html.Br(),
     html.Br(),
-    html.H5('Filter Criteria', style={'textAlign': 'left'}),
-    html.Hr(),
-    FilterDashboard(),
+    #html.H5('Filter Criteria', style={'textAlign': 'left'}),
+    #html.Hr(),
+    button_item,
+    #FilterDashboard(),
     ],
     style={
         'position': 'fixed',
@@ -431,6 +469,24 @@ dashboard = html.Div(
     style=CONTENT_STYLE
 )
 '''
+# Ref: https://dash.plotly.com/basic-callbacks
+# callback to set category dropdown options based on month selected - not selecting cat for month
+@app.callback(
+    Output('dash-category', 'options'),
+    [Input('dash-monthyear', 'value')]
+)
+def set_cat_option(month_year):
+    return [{'label': i, 'value': i} for i in df.category.unique()]
+
+
+# callback to set category dropdown default value
+@app.callback(
+    Output('dash-category', 'value'),
+    [Input('dash-category', 'options')]
+)
+def set_cat_default(available_options):
+    return available_options[0]['value']
+
 
 '''
 # Ref: https://community.plotly.com/t/check-all-elements-of-dcc-checklist/40854/2
@@ -558,7 +614,7 @@ def update_graph_4(month_year, category):
     print(df_category)
     return dbc.Table.from_dataframe(df_category)
 '''
-
+'''
 # Ref: https://plotly.com/python/pie-charts/
 # callback to display graph for selected category & month - not updating table on dash page
 @app.callback(
@@ -570,25 +626,8 @@ def update_table(month_year, category):
     df_category = pd.DataFrame(df.query('month_year == @month_year and category == @category'))
     df_category = df_category[['name', 'price', 'quantity', 'total', 'date']]
     print(df_category)
-    return dash_table.DataTable(
-            data=df_category.to_dict('records'),
-            columns=[
-                {
-                'name': i, 'id': i
-            }
-            for i in (df_category.columns)
-            ],
-            filter_action='native',
-            page_action='native',
-            page_current=0,
-            page_size=20,
-            sort_action='native',
-            sort_mode='single',
-            sort_by=[{'column_id': 'date', 'direction': 'desc'}],
-            style_cell={'textAlign': 'left'},
-            selected_columns=[],
-            selected_rows=[],
-        )
+    return df_category.to_dict('records'),
+'''
 
 # callback for modal
 @app.callback(
