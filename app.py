@@ -13,6 +13,7 @@ import dash_table
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import numpy as np
+from datetime import date
 
 df = pd.read_csv('data/items.csv')
 df['total'] = df['price'] * df['quantity']
@@ -33,9 +34,16 @@ print(df)
 #df_date.index = df_date.index.strftime('%B %Y')
 #print(df_date)
 df_group = df.groupby(['month_year', 'category']).sum().sort_values(by=['month_year'], ascending=False)
+#df_group_total = df_group[['month_year', 'category', 'total']]
+#df_group_total = df_group.drop(df_group.columns[['price', 'quantity']], axis=1, inplace=True)
 print(df_group)
+#print(df_group_total)
 
 df_cat = pd.read_csv('data/category.csv')
+
+today = date.today()
+current_MY = today.strftime('%B %Y')
+print(current_MY)
 
 '''
 table_1 = pd.pivot_table(df, index=['name'], values=['total'], aggfunc=np.sum)
@@ -54,7 +62,7 @@ CONTENT_STYLE = {
     'margin-right': '5%',
     'padding': '20px 10px'
 }
-
+'''
 # sidebar style attributes
 SIDEBAR_STYLE = {
     'position': 'fixed',
@@ -65,32 +73,33 @@ SIDEBAR_STYLE = {
     'padding': '20px 10px',
     'background-color': '#f8f9fa'
 }
+'''
 
 # create form with inputs to filter dashboard
 def FilterDashboard():
     filter_dashboard = dbc.FormGroup(
         [
-            html.P('Item Name', style={
-                'textAlign': 'left'
-            }),
-            dcc.Checklist(
-                id='dash-name-all',
-                options=[
-                    {'label': 'Select All', 'value': 'all'}
-                ],
-                value=[],
-                #style={'float': 'left'},
-                labelStyle={'display': 'block'}
-                #multi=True,
-            ),
-            dcc.Dropdown(
-                id='dash-name',
-                options=[
-                    {'label': i, 'value': i} for i in sorted(df.name.unique())
-                ],
-                multi=True,
-            ),
-            html.Br(),
+            #html.P('Item Name', style={
+            #    'textAlign': 'left'
+            #}),
+            #dcc.Checklist(
+            #    id='dash-name-all',
+            #    options=[
+            #        {'label': 'Select All', 'value': 'all'}
+            #    ],
+            #    value=[],
+            #    #style={'float': 'left'},
+            #    labelStyle={'display': 'block'}
+            #    #multi=True,
+            #),
+            #dcc.Dropdown(
+            #    id='dash-name',
+            #    options=[
+            #        {'label': i, 'value': i} for i in sorted(df.name.unique())
+            #    ],
+            #    multi=True,
+            #),
+            #html.Br(),
             html.P('Category', style={
                 'textAlign': 'left'
             }),
@@ -118,32 +127,33 @@ def FilterDashboard():
             html.P('Date', style={
                 'textAlign': 'left'
             }),
-            dcc.Dropdown(
-                id='dash-date',
-                options=[
-                    {'label': i, 'value': i} for i in sorted(df.date.unique())
-                ],
-                multi=True,
-            ),
-            dcc.Checklist(
-                id='dash-monthyear-all',
-                options=[
-                    {'label': 'Select All', 'value': 'all'}
-                ],
-                value=[],
-                #style={'float': 'left'},
-                labelStyle={'display': 'block'}
-                #multi=True,
-            ),
+            #dcc.Dropdown(
+            #    id='dash-date',
+            #    options=[
+            #        {'label': i, 'value': i} for i in sorted(df.date.unique())
+            #    ],
+            #    multi=True,
+            #),
+            #dcc.Checklist(
+            #    id='dash-monthyear-all',
+            #    options=[
+            #        {'label': 'Select All', 'value': 'all'}
+            #    ],
+            #    value=[],
+            #    #style={'float': 'left'},
+            #    labelStyle={'display': 'block'}
+            #    #multi=True,
+            #),
             dcc.Dropdown(
                 id='dash-monthyear',
                 options=[
                     {'label': i, 'value': i} for i in sorted(df.month_year.unique())
                 ],
-                value=[1],
+                value=current_MY
+                #value=[1],
                 #style={'float': 'left'},
                 #labelStyle={'display': 'block'},
-                multi=True,
+                #multi=True,
             ),
             html.Br(),
             html.Br(),
@@ -286,10 +296,16 @@ def GraphLayout():
     graph_layout = html.Div(
         [
             dbc.Row(
+                [
                 dbc.Col(
                         dcc.Graph(id='graph-3')
-                    )
+                    ),
+                #dbc.Col(
+                        #dbc.Table(id='graph-4')
+                    #)
+                ]
                 ),
+            html.Hr(),
             dbc.Row(
                 [
                     dbc.Col(
@@ -306,9 +322,6 @@ def GraphLayout():
             ),
             dbc.Row(
                 [
-                    dbc.Col(
-                        dcc.Graph(id='graph-4')
-                    ),
                     dbc.Col(
                         dcc.Graph(id='graph-5')
                     ),
@@ -380,7 +393,15 @@ sidebar = html.Div(
     html.Hr(),
     FilterDashboard(),
     ],
-    style=SIDEBAR_STYLE
+    style={
+        'position': 'fixed',
+        'top': 0,
+        'left': 0,
+        'bottom': 0,
+        'width': '20%',
+        'padding': '20px 10px',
+        'background-color': '#f8f9fa'
+    }
 )
 
 # create dashboard layout
@@ -398,7 +419,7 @@ dashboard = html.Div(
     ],
     style=CONTENT_STYLE
 )
-
+'''
 # Ref: https://community.plotly.com/t/check-all-elements-of-dcc-checklist/40854/2
 # callback to select all name values
 @app.callback(
@@ -410,6 +431,7 @@ def select_all(all_selected, options):
     selected = []
     selected = [option['value'] for option in options if all_selected]
     return selected
+'''
 
 # Ref: https://community.plotly.com/t/check-all-elements-of-dcc-checklist/40854/2
 # callback to select all category values
@@ -446,15 +468,16 @@ def update_graph_1(category, month_year):
     [Input('dash-monthyear', 'value')]
 )
 def update_graph_3(month_year):
-    query_graph3 = df.query('month_year == @month_year')
+    #query_graph3 = df.query('month_year == @month_year').sum()
+   
     fig = px.pie(df.query('month_year == @month_year'), 
         values='total', 
         names='category', 
         title= 'Spending per Category for {}'.format(month_year),
         hole= .5,
-        labels={
-            'category': 'Category', 'total': 'Total Amount'
-        }
+        #labels={
+            #'category': 'Category', 'total': 'Total Amount'
+        #}
     )
     fig.update_traces(
         hoverinfo='label+percent', 
@@ -463,14 +486,31 @@ def update_graph_3(month_year):
     )
     fig.update_layout(
         annotations= [
-            #dict(text= 'Spending per Category', x=0.5, y=0.7, font_size=10, showarrow=False),
-            #dict(text= 'for {}'.format(month_year), x=0.5, y=0.5, font_size=10, showarrow=False),
-            dict(text= 'Total Amount: $', x=0.5, y=0.3, font_size=10, showarrow=False)
-            ]
+            dict(text= 'Total Amount <br> $', x=0.5, y=0.7, font_size=15, showarrow=False),
+            #dict(text= '$', x=0.5, y=0.5, font_size=15, showarrow=False),
+            #dict(text= 'Total Amount: $', x=0.5, y=0.5, font_size=15, showarrow=False)
+            ],
+            legend_title='<b> Category </b>'
     )
     #print(query_graph3)
     return fig
-
+'''
+# Ref: https://plotly.com/python/pie-charts/
+# callback to display graph 4 - work on this monthyear not pulling graph info
+@app.callback(
+    Output('graph-4', 'children'),
+    [Input('dash-monthyear', 'value')]
+)
+def update_graph_4(month_year):
+    query_graph4 = df.query('month_year == @month_year')
+    df_group = pd.DataFrame(query_graph4.groupby(['month_year', 'category']).sum().sort_values(by=['month_year'], ascending=False))
+    df_group = df_group[['category, total']]
+    print(df_group)
+    #print(query_graph4)
+    return dbc.Table.from_dataframe(
+        df_group, striped=True, bordered=True, hover=True
+    )
+'''
 # callback for modal
 @app.callback(
     Output('modal', 'is_open'),
