@@ -476,7 +476,8 @@ dashboard = html.Div(
     [Input('dash-monthyear', 'value')]
 )
 def set_cat_option(month_year):
-    return [{'label': i, 'value': i} for i in df.category.unique()]
+    df_cat = df.query('month_year == @month_year')
+    return [{'label': i, 'value': i} for i in df_cat.category.unique()]
 
 
 # callback to set category dropdown default value
