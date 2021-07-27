@@ -3,6 +3,7 @@
 from __future__ import annotations
 import dash
 import dash_core_components as dcc
+from dash_core_components.Graph import Graph
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
@@ -179,28 +180,34 @@ dashboard = html.Div(
                     'display': 'inline-block'
                 },
             ),
+            html.Br(),
             dbc.Row([
-                dash_table.DataTable(
-                    id='table-spending-category',
-                    data=df.to_dict('records'),
-                    columns=[
-                        {
-                        'name': i, 'id': i
-                        }
-                        for i in (df_table.columns)
-                        ],
-                    filter_action='native',
-                    page_action='native',
-                    page_current=0,
-                    page_size=10,
-                    sort_action='native',
-                    sort_mode='single',
-                    sort_by=[{'column_id': 'date', 'direction': 'desc'}],
-                    style_cell={'textAlign': 'left'},
-                    selected_columns=[],
-                    selected_rows=[],
-                    style_as_list_view=True,
-                    )
+                dbc.Col(
+                    dcc.Graph(id='graph-item')
+                ),
+                dbc.Col(
+                    dash_table.DataTable(
+                        id='table-spending-category',
+                        data=df.to_dict('records'),
+                        columns=[
+                            {
+                            'name': i, 'id': i
+                            }
+                            for i in (df_table.columns)
+                            ],
+                        filter_action='native',
+                        page_action='native',
+                        page_current=0,
+                        page_size=10,
+                        sort_action='native',
+                        sort_mode='single',
+                        sort_by=[{'column_id': 'date', 'direction': 'desc'}],
+                        style_cell={'textAlign': 'left'},
+                        selected_columns=[],
+                        selected_rows=[],
+                        style_as_list_view=True,
+                        )
+                )
             ]),
             dbc.Row(
                     dcc.Graph(id='graph-trend')
@@ -295,25 +302,20 @@ def update_graph_spending_all(month_year):
             legend_title='<b> Category </b>'
     )
     return fig
-'''
+
 # Ref: https://plotly.com/python/pie-charts/
 # callback to display graph for selected category
 @app.callback(
-    Output('graph-spending-category', 'figure'),
+    Output('graph-item', 'figure'),
     [Input('dash-monthyear', 'value'),
     Input('dash-category', 'value')]
 )
-def update_graph_spending_category(month_year, category):
-    #query_graph3 = df.query('month_year == @month_year').sum()
-   
-    fig = px.pie(df.query('month_year == @month_year and category == @category'), 
+def update_graph_item(month_year, category):
+    fig = px.pie(df.query('month_year == @month_year and category ==@category'), 
         values='total', 
         names='name', 
-        title= 'Spending for {} in {}'.format(month_year),
+        title= 'Spending for snacks in {}'.format(month_year),
         hole= .5,
-        #labels={
-            #'category': 'Category', 'total': 'Total Amount'
-        #}
     )
     fig.update_traces(
         hoverinfo='label+percent', 
@@ -323,14 +325,10 @@ def update_graph_spending_category(month_year, category):
     fig.update_layout(
         annotations= [
             dict(text= 'Total Amount <br> $', x=0.5, y=0.5, font_size=15, showarrow=False),
-            #dict(text= '$', x=0.5, y=0.5, font_size=15, showarrow=False),
-            #dict(text= 'Total Amount: $', x=0.5, y=0.5, font_size=15, showarrow=False)
             ],
-            legend_title='<b> Category </b>'
+            legend_title='<b> Item </b>'
     )
-    #print(query_graph3)
     return fig
-'''
 
 # Ref: https://plotly.com/python/pie-charts/
 # callback to display graph for selected category & month
