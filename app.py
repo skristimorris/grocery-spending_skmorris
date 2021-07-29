@@ -25,11 +25,14 @@ df['total'] = df['price'] * df['quantity']
 
 # add 'month_year' column to df that assigns month & year to each item based on purchase date
 df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
+df = df.sort_values(by='date').reset_index(drop=True)
 print(df)
 
+'''
 # group df by month_year and category - am i using this?
-df_group = df.groupby(['month_year', 'category']).sum().sort_values(by=['month_year'], ascending=False)
+df_group = df.groupby(['month_year', 'category']).sum().sort_values(by=['month_year'], ascending=True)
 print(df_group)
+'''
 
 # df for table
 df_table = df[['name', 'price', 'quantity', 'date']]
@@ -160,7 +163,7 @@ dashboard = html.Div(
                 dcc.Dropdown(
                     id='dash-monthyear',
                     options=[
-                        {'label': i, 'value': i} for i in sorted(df.month_year.unique())
+                        {'label': i, 'value': i} for i in df.month_year.unique()
                     ],
                     value=current_MY,
                 )],
@@ -275,7 +278,7 @@ sidebar = html.Div(
 )
 def set_cat_option(month_year):
     df_cat = df.query('month_year == @month_year')
-    return [{'label': i, 'value': i} for i in df_cat.category.unique()]
+    return [{'label': i, 'value': i} for i in sorted(df_cat.category.unique())]
 
 # callback to set category dropdown default value
 @app.callback(
