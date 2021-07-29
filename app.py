@@ -166,6 +166,7 @@ dashboard = html.Div(
                         {'label': i, 'value': i} for i in df.month_year.unique()
                     ],
                     value=current_MY,
+                    clearable=False
                 )],
                 style={
                     'width': '20%',
@@ -177,7 +178,9 @@ dashboard = html.Div(
                 ),
             html.Hr(),
             html.Div([
-                dcc.Dropdown(id='dash-category',)
+                dcc.Dropdown(id='dash-category',
+                clearable=False
+                )
             ],
                 style={
                     'width': '20%',
@@ -185,13 +188,6 @@ dashboard = html.Div(
                 },
             ),
             html.Br(),
-            #html.Div(id='table-container',
-            #    children=[
-            #        dash_table.DataTable(
-            #            id='table'
-            #        )
-            #    ]
-            #),
             dbc.Row([
                 dbc.Col(
                     dcc.Graph(id='graph-item')
