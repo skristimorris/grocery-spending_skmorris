@@ -18,6 +18,7 @@ from datetime import date
 
 # set dataframe
 df = pd.read_csv('data/items.csv')
+df_category = pd.read_csv('data/category.csv')
 
 # add 'total' column to df
 df['total'] = df['price'] * df['quantity']
@@ -31,7 +32,7 @@ df_group = df.groupby(['month_year', 'category']).sum().sort_values(by=['month_y
 print(df_group)
 
 # df for table
-df_table = df[['name', 'price', 'quantity', 'total', 'date']]
+df_table = df[['name', 'price', 'quantity', 'date']]
 print(df_table)
 
 # create variable for current date in format of month & year to assign as default value for date dropdown
@@ -64,7 +65,7 @@ def InputItem():
             dcc.Dropdown(
                 id='category',
                 options=[
-                    {'label': i, 'value': i} for i in sorted(df.category.unique())
+                    {'label': i, 'value': i} for i in sorted(df_category.Category)
                 ],
             ),
             html.Div(id='output-category'),
@@ -109,7 +110,7 @@ def InputItem():
             html.Div(id='output-date'),
             html.Br(),
             html.Br(),
-            html.Div(id='output-input-form')
+            html.Div(id='output-add-item')
         ]
     )
     return input_addItem
@@ -181,13 +182,20 @@ dashboard = html.Div(
                 },
             ),
             html.Br(),
+            #html.Div(id='table-container',
+            #    children=[
+            #        dash_table.DataTable(
+            #            id='table'
+            #        )
+            #    ]
+            #),
             dbc.Row([
                 dbc.Col(
                     dcc.Graph(id='graph-item')
                 ),
-                dbc.Col(
-                    dash_table.DataTable(
-                        id='table-spending-category',
+                dbc.Col([
+                        dash_table.DataTable(
+                        id='table-item',
                         data=df.to_dict('records'),
                         columns=[
                             {
@@ -207,7 +215,7 @@ dashboard = html.Div(
                         selected_rows=[],
                         style_as_list_view=True,
                         )
-                )
+                ])
             ]),
             dbc.Row(
                     dcc.Graph(id='graph-trend')
@@ -314,7 +322,7 @@ def update_graph_item(month_year, category):
     fig = px.pie(df.query('month_year == @month_year and category ==@category'), 
         values='total', 
         names='name', 
-        title= 'Spending for snacks in {}'.format(month_year),
+        title= 'Spending for {} in {}'.format(category, month_year),
         hole= .5,
     )
     fig.update_traces(
@@ -345,21 +353,6 @@ def update_graph_trend(category):
     )
     return fig
 
-
-# Ref: https://plotly.com/python/pie-charts/
-# callback to display graph for selected category & month - not updating table on dash page
-@app.callback(
-    Output('table-spending-category', 'data'),
-    [Input('dash-monthyear', 'value'),
-    Input('dash-category', 'value')]
-)
-def update_table(month_year, category):
-    df_table = pd.DataFrame(df.query('month_year == @month_year and category == @category'))
-    df_table = df_table[['name', 'price', 'quantity', 'total', 'date']]
-    print(df_table)
-    return df_table.to_dict('records')
-
-
 # callback for modal
 @app.callback(
     Output('modal', 'is_open'),
@@ -372,11 +365,11 @@ def toggle_modal(n1, n2, is_open):
     return is_open
 
 
-# THIS WORKS except it's adding blank values to df - need exception - look at python exercise #2 for ideas with email exceptions
+# THIS WORKS except it's adding blank values to df - need exception - look at python exercise #2 for ideas with email exceptions -- not working bc can't have id for 2 outputs
 # Ref: https://dash.plotly.com/advanced-callbacks
 # callback to add new item to df + item.csv and update table with new row on submit
 @app.callback(
-    Output('table-item', 'data'),
+    Output('output-add-item', 'children'),
     [Input('submit-new-item', 'n_clicks')],
     [State('name', 'value'),
     State('category', 'value'),
@@ -394,9 +387,60 @@ def add_item(n, name, category, price, quantity, date):
         df = df.append(new_row, ignore_index=True)
         df.to_csv("data/items.csv", index=False)
         print(df)
-        return df.to_dict('records')
+        return '{} Added.'.format(name)
     else:
         return dash.no_update
+
+'''
+# callback to add new item to df + item.csv and update table with new row on submit
+@app.callback(
+    Output('table-container', 'children'),
+    [Input('submit-new-item', 'n_clicks'),
+    Input('dash-category', 'value'),
+    Input('dash-monthyear', 'value')],
+    [State('name', 'value'),
+    State('category', 'value'),
+    State('price', 'value'),
+    State('quantity', 'value'),
+    State('date', 'date')
+    ]
+)
+def update_table(n, dash_cat, month_year, name, category, price, quantity, date):
+    ctx = dash.callback_context
+    input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    if input_id == 'dash-category' or 'dash-monthyear':
+        df = pd.read_csv("data/items.csv")
+        df_table = pd.DataFrame(df.query('month_year == @month_year and category == @dash_cat'))
+        df_table = df_table[['name', 'price', 'quantity', 'total', 'date']]
+        print(df_table)
+        return df.to_dict('records')
+    #elif input_id == 'submit-new-item':
+    #    df = pd.read_csv("data/items.csv")
+    #    new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
+    #    df = df.append(new_row, ignore_index=True)
+    #    df.to_csv("data/items.csv", index=False)
+    #    print(df)
+    #    df_table = pd.DataFrame(df.query('month_year == @month_year and category == @dash_cat'))
+    #    df_table = df_table[['name', 'price', 'quantity', 'total', 'date']]
+    #    print(df_table)
+    #    return df.to_dict('records')
+    #else:
+    #return dash.no_update
+'''
+
+
+# callback to update table based on category and date
+@app.callback(
+    Output('table-item', 'data'),
+    [Input('dash-monthyear', 'value'),
+    Input('dash-category', 'value')]
+)
+def update_table(month_year, category):
+    df_table = pd.DataFrame(df.query('month_year == @month_year and category == @category'))
+    df_table = df_table[['name', 'price', 'quantity', 'total', 'date']]
+    print(df_table)
+    return df_table.to_dict('records')
+
         
 app.layout = html.Div([navbar, sidebar, dashboard])
 
