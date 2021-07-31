@@ -3,35 +3,28 @@
 from __future__ import annotations
 import dash
 import dash_core_components as dcc
-from dash_core_components.Graph import Graph
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
-from pandas.core.indexes import interval
-from pandas.io.formats import style
 import plotly.express as px
 import pandas as pd
 import dash_table
 from dash.exceptions import PreventUpdate
-import plotly.graph_objects as go
-import numpy as np
 from datetime import date
 
 # set dataframe
 df = pd.read_csv('data/items.csv')
 df_category = pd.read_csv('data/category.csv')
-
+'''
 # add 'total' column to df
 df['total'] = df['price'] * df['quantity']
 
 # add 'month_year' column to df that assigns month & year to each item based on purchase date
 df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
 df = df.sort_values(by='date').reset_index(drop=True)
-print(df)
-
+'''
 # df for table
 df_table = df[['name', 'price', 'quantity', 'date']]
-print(df_table)
 
 # create variable for current date in format of month & year to assign as default value for date dropdown
 today = date.today()
@@ -55,6 +48,7 @@ def InputItem():
                 style={'width': '100%'}
             ),
             html.Br(),
+            html.Br(),
             html.P('Category', style={
                 'textAlign': 'left'
             }),
@@ -75,6 +69,7 @@ def InputItem():
                 style={'width': '100%'}
             ),
             html.Br(),
+            html.Br(),
             html.P('Quantity', style={
                 'textAlign': 'left'
             }),
@@ -93,7 +88,7 @@ def InputItem():
                 value=1,
             ),
             html.Br(),
-            html.P('Date', style={
+            html.P('Date of Purchase', style={
                 'textAlign': 'left'
             }),
             dcc.DatePickerSingle(
@@ -149,6 +144,20 @@ dashboard = html.Div(
             html.H5('Spending Dashboard', style={'textAlign': 'left'}),
             html.Hr(),
             html.Div([
+                dash_table.DataTable(
+                        id='table-item',
+                        data=df.to_dict('records'),
+                        columns=[
+                            {
+                            'name': i, 'id': i
+                            }
+                            for i in (df.columns)
+                            ],
+                        )
+            ],
+            style={'display': 'none'},
+            ),
+            html.Div([
                 dcc.Dropdown(
                     id='dash-monthyear',
                     options=[
@@ -183,7 +192,7 @@ dashboard = html.Div(
                 ),
                 dbc.Col([
                         dash_table.DataTable(
-                        id='table-item',
+                        id='table-item-display',
                         data=df.to_dict('records'),
                         columns=[
                             {
@@ -358,8 +367,6 @@ def update_graph_trend(data, category):
     )
     return fig
 
-    # THIS WORKS except it's adding blank values to df - need exception - look at python exercise #2 for ideas with email exceptions 
-
 # THIS WORKS except it's adding blank values to df - need exception - look at python exercise #2 for ideas with email exceptions 
 # Ref: https://dash.plotly.com/advanced-callbacks
 # callback to add new item to df + item.csv
@@ -370,10 +377,10 @@ def update_graph_trend(data, category):
     State('category', 'value'),
     State('price', 'value'),
     State('quantity', 'value'),
-    State('date', 'date')
+    State('date', 'date'),
     ]
 )
-def add_item(n, name, category, price, quantity, date):
+def update_table(n, name, category, price, quantity, date):
     ctx = dash.callback_context
     input_id = ctx.triggered[0]['prop_id'].split('.')[0]
     if input_id == 'submit-new-item':
@@ -390,9 +397,42 @@ def add_item(n, name, category, price, quantity, date):
         return dash.no_update
 
 '''
-# callback to update table based on category and date
+# THIS WORKS except it's adding blank values to df - need exception - look at python exercise #2 for ideas with email exceptions 
+# Ref: https://dash.plotly.com/advanced-callbacks
+# callback to add new item to df + item.csv
 @app.callback(
     Output('table-item', 'data'),
+    [Input('submit-new-item', 'n_clicks'),
+    Input('dash-monthyear', 'value'),
+    Input('dash-category', 'value')],
+    [State('name', 'value'),
+    State('category', 'value'),
+    State('price', 'value'),
+    State('quantity', 'value'),
+    State('date', 'date'),
+    ]
+)
+def update_table(n, name, category, price, quantity, date):
+    ctx = dash.callback_context
+    input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    if input_id == 'submit-new-item':
+        df = pd.read_csv("data/items.csv")
+        new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
+        df = df.append(new_row, ignore_index=True)
+        df.to_csv("data/items.csv", index=False)
+        df['total'] = df['price'] * df['quantity']
+        df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
+        df = df.sort_values(by='date').reset_index(drop=True)
+        print(df)
+        return df.to_dict('records')
+    else:
+        return dash.no_update
+'''
+
+
+# callback to update table based on category and date
+@app.callback(
+    Output('table-item-display', 'data'),
     [Input('dash-monthyear', 'value'),
     Input('dash-category', 'value')]
 )
@@ -401,7 +441,6 @@ def update_table(month_year, category):
     df_table = df_table[['name', 'price', 'quantity', 'total', 'date']]
     print(df_table)
     return df_table.to_dict('records')
-    '''
         
 app.layout = html.Div([navbar, sidebar, dashboard])
 
