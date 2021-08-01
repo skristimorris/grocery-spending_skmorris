@@ -6,7 +6,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
-from dash_html_components.P import P
 import plotly.express as px
 import pandas as pd
 import dash_table
@@ -24,13 +23,19 @@ df['total'] = df['price'] * df['quantity']
 # add 'month_year' column to df that assigns month & year to each item based on purchase date
 df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
 df = df.sort_values(by='date').reset_index(drop=True)
+print(df)
 
 # df for table
 df_table = df[['name', 'price', 'quantity', 'date']]
 
-# create variable for current date in format of month & year to assign as default value for date dropdown
+# create variable to select most current month_year date to assign as default value for date dropdown
 today = date.today()
 current_MY = today.strftime('%B %Y')
+print(current_MY)
+df_date = df.sort_values(by='date', ascending=False)
+df_date = df_date.head(1)
+df_date = df_date.month_year.item()
+print(df_date)
 
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -166,7 +171,7 @@ dashboard = html.Div(
                     options=[
                         {'label': i, 'value': i} for i in df.month_year.unique()
                     ],
-                    value=current_MY,
+                    value=df_date,
                     clearable=False
                 )],
                 style={
@@ -344,7 +349,8 @@ def generate_graph_all_cat(data, month_year):
         hole= .5)
     fig.update_traces(
         hoverinfo='label+percent', 
-        #text=['$' + total for total in fig.total.values],
+        #texttemplate='%{value:$}',
+        #text=['$' + total for total in fig.value], #$ in front of value, also close out modal and clear values when item added
         textinfo='value'
     )
     fig.update_layout(
