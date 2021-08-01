@@ -10,12 +10,14 @@ import plotly.express as px
 import pandas as pd
 import dash_table
 from dash.exceptions import PreventUpdate
-from datetime import date
 from dash import no_update
+from dash_table import FormatTemplate
 
 # set dataframe
 df = pd.read_csv('data/items.csv')
 df_category = pd.read_csv('data/category.csv')
+pd.options.display.float_format = '{:.2f}'.format
+print(df)
 
 # add 'total' column to df
 df['total'] = df['price'] * df['quantity']
@@ -23,19 +25,17 @@ df['total'] = df['price'] * df['quantity']
 # add 'month_year' column to df that assigns month & year to each item based on purchase date
 df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
 df = df.sort_values(by='date').reset_index(drop=True)
-print(df)
 
 # df for table
 df_table = df[['name', 'price', 'quantity', 'date']]
 
 # create variable to select most current month_year date to assign as default value for date dropdown
-today = date.today()
-current_MY = today.strftime('%B %Y')
-print(current_MY)
 df_date = df.sort_values(by='date', ascending=False)
 df_date = df_date.head(1)
 df_date = df_date.month_year.item()
-print(df_date)
+
+# format price in table as money
+money = FormatTemplate.money(2)
 
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -205,7 +205,7 @@ dashboard = html.Div(
                         data=df.to_dict('records'),
                         columns=[
                             {'name': 'Name', 'id': 'name'},
-                            {'name': 'Price', 'id': 'price'},
+                            {'name': 'Price', 'id': 'price', 'type': 'numeric', 'format': FormatTemplate.money(2)},
                             {'name': 'Quantity', 'id': 'quantity'},
                             {'name': 'Date', 'id': 'date'},
                             ],
@@ -349,15 +349,16 @@ def generate_graph_all_cat(data, month_year):
         hole= .5)
     fig.update_traces(
         hoverinfo='label+percent', 
-        #texttemplate='%{value:$}',
-        #text=['$' + total for total in fig.value], #$ in front of value, also close out modal and clear values when item added
+        texttemplate='%{value:$}',
         textinfo='value'
     )
     fig.update_layout(
         annotations= [
             dict(text= 'Total Amount <br> ${}'.format(total_format), x=0.5, y=0.5, font_size=15, showarrow=False),
         ],
-            legend_title='<b> Category </b>'
+        legend_title='<b> Category </b>',
+        uniformtext_minsize=8,
+        uniformtext_mode='show'
     )
     return fig  
 
@@ -383,7 +384,7 @@ def update_graph_item(data, month_year, category):
     )
     fig.update_traces(
         hoverinfo='label+percent', 
-        #text=['$' + total for total in fig.total.values],
+        texttemplate='%{value:$}',
         textinfo='value'
     )
     fig.update_layout(
@@ -402,12 +403,17 @@ def update_graph_item(data, month_year, category):
     Input('dash-category', 'value')]
 )
 def update_graph_trend(data, category):
-    dff = pd.DataFrame.from_dict(data) 
+    dff = pd.DataFrame.from_dict(data)
+
     fig = px.bar(dff.query('category == @category'), x='month_year', y='price', color='category', barmode='group', 
         title= 'Spending History for {}'.format(category),
         labels={
             'category': 'Category', 'price': 'Total Amount', 'month_year': 'Month of Purchase'
         }
+    )
+    fig.update_traces(
+        texttemplate='%{value:$}',
+        textposition='outside'
     )
     return fig
 
