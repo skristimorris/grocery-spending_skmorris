@@ -64,3 +64,52 @@ Brownies,Snacks,4.49,1.0,2021-06-21
 Diet Coke,Beverages,1.99,1.0,2021-06-21
 Cupcakes,Snacks,3.99,1.0,2021-07-22
 Carrots,Produce,1.09,1.0,2021-07-09
+Eggs,Dairy,2.5,1.0,2021-07-22
+Brownies,Snacks,3.87,1.0,2021-07-26
+Ground Beef,Meat,5.99,1.0,2021-07-26
+Sprite,Beverages,1.99,1.0,2021-07-26
+Chex Mix,Snacks,3.49,1.0,2021-07-23
+Gummy Bears,Candy,1.99,2.0,2021-07-26
+Broccoli,Produce,2.5,1.0,2021-07-26
+Pizza,Frozen,7.89,1.0,2021-07-26
+Black Beans,Pantry,1.54,1.0,2021-07-26
+White Rice,Pantry,1.89,1.0,2021-04-22
+Eggs,Dairy,2.75,1.0,2021-04-20
+Key Lime Pie,Bakery,6.99,1.0,2021-07-29
+Kit Kat,Candy,1.99,1.0,2021-04-08
+Almond Milk,Dairy,3.29,1.0,2021-04-07
+Bread,Bakery,3.98,1.0,2021-04-20
+Cupcakes,Bakery,4.25,1.0,2021-04-21
+Ground Beef,Meat,6.99,1.0,2021-04-22
+Celery,Produce,1.09,1.0,2021-07-21
+Oreos,Snacks,3.58,1.0,2021-07-30
+Croissants,Bakery,3.28,1.0,2021-07-28
+Goldfish,Snacks,3.25,1.0,2021-07-27
+Pizza,Frozen,6.99,1.0,2021-04-13
+Red Bull,Beverages,8.99,1.0,2021-04-12
+Gummy Bears,Candy,0.99,1.0,2021-04-22
+Oreos,Snacks,3.48,1.0,2021-04-12
+Doritos,Snacks,3.5,1.0,2021-04-12
+Ice Cream,Frozen,5.99,1.0,2021-08-01
+Green Peas,Frozen,1.28,1.0,2021-06-16
+Broccoli,Frozen,1.0,1.0,2021-06-16
+Fritos,Snacks,3.5,1.0,2021-08-01
+Onion,Produce,1.26,1.0,2021-08-01
+Doritos,Snacks,3.5,1.0,2021-08-01
+Oat Milk,Dairy,3.98,1.0,2021-08-01
+Kale,Produce,0.99,2.0,2021-08-01
+Salmon,Seafood,9.98,1.0,2021-08-01
+Bread,Bakery,2.88,1.0,2021-08-01
+Twix,Candy,1.97,1.0,2021-08-01
+Snickers,Candy,1.88,1.0,2021-08-01
+hummus,Deli,3.49,5.0,2021-08-01
+bread seasoning,Deli,1.79,6.0,2021-08-01
+Guacamole,Deli,2.5,1.0,2021-08-01
+Guacamole,Deli,2.5,1.0,2021-04-15
+Shrimp,Seafood,8.99,1.0,2021-04-15
+Flour,Pantry,2.26,1.0,2021-05-01
+Tilapia,Seafood,11.49,1.0,2021-06-01
+Swordfish,Seafood,14.78,1.0,2021-05-01
+Shrimp,Seafood,10.55,1.0,2021-05-11
+Tilapia,Seafood,7.98,1.0,2021-05-12
+Hummus,Deli,2.65,1.0,2021-05-20
