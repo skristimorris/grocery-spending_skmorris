@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 import dash
-from dash_bootstrap_components._components.FormFeedback import FormFeedback
-from dash_bootstrap_components._components.FormGroup import FormGroup
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
-from future.utils import text_to_native_str
+from dash_html_components.P import P
 import plotly.express as px
 import pandas as pd
 import dash_table
@@ -179,6 +177,7 @@ dashboard = html.Div(
                 dcc.Graph(id='graph-spending-all')
                 ),
             html.Hr(),
+            html.P('Select a category:'),
             html.Div([
                 dcc.Dropdown(id='dash-category',
                 clearable=False
@@ -334,8 +333,11 @@ def set_cat_default(available_options):
 )
 def generate_graph_all_cat(data, month_year):
     dff = pd.DataFrame.from_dict(data)
+    dff = dff.query('month_year == @month_year')
+    dff_total = dff['total'].sum()
+    total_format = '{:.2f}'.format(dff_total)
 
-    fig = px.pie(dff.query('month_year == @month_year'), 
+    fig = px.pie(dff, 
         values='total', 
         names='category', 
         title= 'Spending for All Categories in {}'.format(month_year),
@@ -347,7 +349,7 @@ def generate_graph_all_cat(data, month_year):
     )
     fig.update_layout(
         annotations= [
-            dict(text= 'Total Amount <br> ${}'.values.sum(), x=0.5, y=0.5, font_size=15, showarrow=False),
+            dict(text= 'Total Amount <br> ${}'.format(total_format), x=0.5, y=0.5, font_size=15, showarrow=False),
         ],
             legend_title='<b> Category </b>'
     )
@@ -363,7 +365,11 @@ def generate_graph_all_cat(data, month_year):
 )
 def update_graph_item(data, month_year, category):
     dff = pd.DataFrame.from_dict(data)
-    fig = px.pie(dff.query('month_year == @month_year and category ==@category'), 
+    dff = dff.query('month_year == @month_year and category ==@category')
+    dff_total = dff['total'].sum()
+    total_format = '{:.2f}'.format(dff_total)
+
+    fig = px.pie(dff, 
         values='total', 
         names='name', 
         title= 'Spending for {} in {}'.format(category, month_year),
@@ -376,7 +382,7 @@ def update_graph_item(data, month_year, category):
     )
     fig.update_layout(
         annotations= [
-            dict(text= 'Total Amount <br> $', x=0.5, y=0.5, font_size=15, showarrow=False),
+            dict(text= 'Total Amount <br> ${}'.format(total_format), x=0.5, y=0.5, font_size=15, showarrow=False),
             ],
             legend_title='<b> Item </b>'
     )
