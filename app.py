@@ -2,27 +2,31 @@
 
 from __future__ import annotations
 import dash
+from dash_bootstrap_components._components.FormFeedback import FormFeedback
+from dash_bootstrap_components._components.FormGroup import FormGroup
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
+from future.utils import text_to_native_str
 import plotly.express as px
 import pandas as pd
 import dash_table
 from dash.exceptions import PreventUpdate
 from datetime import date
+from dash import no_update
 
 # set dataframe
 df = pd.read_csv('data/items.csv')
 df_category = pd.read_csv('data/category.csv')
-'''
+
 # add 'total' column to df
 df['total'] = df['price'] * df['quantity']
 
 # add 'month_year' column to df that assigns month & year to each item based on purchase date
 df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
 df = df.sort_values(by='date').reset_index(drop=True)
-'''
+
 # df for table
 df_table = df[['name', 'price', 'quantity', 'date']]
 
@@ -37,69 +41,69 @@ app.config.suppress_callback_exceptions = True
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 # create form with inputs to add new item
 def InputItem():
-    input_addItem = dbc.FormGroup(
+    input_addItem = dbc.Form(
         [
-            html.P('Item Name', style={
-                'textAlign': 'left'
-            }),
-            dcc.Input(
-                id='name', 
-                placeholder='Enter grocery item',
-                style={'width': '100%'}
+            dbc.FormGroup(
+                [
+                    dbc.Label('Item Name'),
+                    dcc.Input(
+                        id='name', 
+                        placeholder='Enter grocery item',
+                        style={'width': '100%'}
+                    ),
+                ]
             ),
-            html.Br(),
-            html.Br(),
-            html.P('Category', style={
-                'textAlign': 'left'
-            }),
-            dcc.Dropdown(
-                id='category',
-                options=[
-                    {'label': i, 'value': i} for i in sorted(df_category.Category)
-                ],
+            dbc.FormGroup(
+                [
+                    html.Label('Category'),
+                    dcc.Dropdown(
+                        id='category',
+                        options=[
+                            {'label': i, 'value': i} for i in sorted(df_category.Category)
+                        ],
+                    )
+                ]
             ),
-            html.Br(),
-            html.P('Price', style={
-                'textAlign': 'left'
-            }),
-            dcc.Input(
-                id='price',
-                type='number',
-                placeholder='Enter price of item',
-                style={'width': '100%'}
+            dbc.FormGroup(
+                [
+                    html.Label('Price'),
+                    dcc.Input(
+                        id='price',
+                        type='number',
+                        placeholder='Enter price of item',
+                        style={'width': '100%'}
+                    )
+                ]
             ),
-            html.Br(),
-            html.Br(),
-            html.P('Quantity', style={
-                'textAlign': 'left'
-            }),
-            dcc.Slider(
-                id='quantity',
-                min=0,
-                max=10,
-                step=1,
-                #value=1,
-                marks={
-                i: '{}'.format(i)
-                if i == 1
-                else str(i)
-                for i in range(1,11)
-                },
-                value=1,
+            dbc.FormGroup(
+                [
+                    html.Label('Quantity'),
+                    dcc.Slider(
+                        id='quantity',
+                        min=0,
+                        max=10,
+                        step=1,
+                        marks={
+                        i: '{}'.format(i)
+                        if i == 1
+                        else str(i)
+                        for i in range(1,11)
+                        },
+                        value=1,
+                    ),
+                    html.Br(),
+                    html.Label('Date of Purchase'),
+                    html.Br(),
+                    dcc.DatePickerSingle(
+                        id='date',
+                        month_format='MMM Do, YY'
+                    )
+                ]
             ),
-            html.Br(),
-            html.P('Date of Purchase', style={
-                'textAlign': 'left'
-            }),
-            dcc.DatePickerSingle(
-                id='date',
-                month_format='MMM Do, YY'
-            ),
-            html.Br(),
-            html.Br(),
-            html.Div(id='output-add-item')
-        ]
-    )
+                    html.Div(id='output-add-item', 
+                    style={'color': 'red'})
+                ]
+            )
     return input_addItem
 
 # create button to add new item and submit and close modal
@@ -275,6 +279,33 @@ def toggle_modal(n1, n2, is_open):
         return not is_open
     return is_open
 
+# Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
+# Check for valid inputs on form
+@app.callback(
+    Output('output-add-item', 'children'),
+    [Input('submit-new-item', 'n_clicks')],
+    [State('name', 'value'),
+    State('category', 'value'),
+    State('price', 'value'),
+    State('quantity', 'value'),
+    State('date', 'date')]
+)
+def check_validity(n, name, category, price, quantity, date):
+    if n>0:
+        if name == None:
+            return 'Please enter an item name.'
+        if category == None:
+            return 'Please select a category.'
+        if price == None:
+            return 'Please enter a price.'
+        if quantity == None:
+            return 'Please select a quantity.'
+        if date == None:
+            return 'Please select a date.'
+    else:
+        raise PreventUpdate
+    
+
 # Ref: https://dash.plotly.com/basic-callbacks
 # callback to set category dropdown options based on month selected - not selecting cat for month
 @app.callback(
@@ -303,6 +334,7 @@ def set_cat_default(available_options):
 )
 def generate_graph_all_cat(data, month_year):
     dff = pd.DataFrame.from_dict(data)
+
     fig = px.pie(dff.query('month_year == @month_year'), 
         values='total', 
         names='category', 
@@ -315,7 +347,7 @@ def generate_graph_all_cat(data, month_year):
     )
     fig.update_layout(
         annotations= [
-            dict(text= 'Total Amount <br> $', x=0.5, y=0.5, font_size=15, showarrow=False),
+            dict(text= 'Total Amount <br> ${}'.values.sum(), x=0.5, y=0.5, font_size=15, showarrow=False),
         ],
             legend_title='<b> Category </b>'
     )
@@ -367,7 +399,6 @@ def update_graph_trend(data, category):
     )
     return fig
 
-# THIS WORKS except it's adding blank values to df - need exception - look at python exercise #2 for ideas with email exceptions 
 # Ref: https://dash.plotly.com/advanced-callbacks
 # callback to add new item to df + item.csv
 @app.callback(
@@ -384,51 +415,20 @@ def update_table(n, name, category, price, quantity, date):
     ctx = dash.callback_context
     input_id = ctx.triggered[0]['prop_id'].split('.')[0]
     if input_id == 'submit-new-item':
-        df = pd.read_csv("data/items.csv")
-        new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
-        df = df.append(new_row, ignore_index=True)
-        df.to_csv("data/items.csv", index=False)
-        df['total'] = df['price'] * df['quantity']
-        df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
-        df = df.sort_values(by='date').reset_index(drop=True)
-        print(df)
-        return df.to_dict('records')
+        if None not in [name, category, price, quantity, date]:
+            df = pd.read_csv("data/items.csv")
+            new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
+            df = df.append(new_row, ignore_index=True)
+            df.to_csv("data/items.csv", index=False)
+            df['total'] = df['price'] * df['quantity']
+            df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
+            df = df.sort_values(by='date').reset_index(drop=True)
+            print(df)
+            return df.to_dict('records')
+        else:
+            return no_update
     else:
         return dash.no_update
-
-'''
-# THIS WORKS except it's adding blank values to df - need exception - look at python exercise #2 for ideas with email exceptions 
-# Ref: https://dash.plotly.com/advanced-callbacks
-# callback to add new item to df + item.csv
-@app.callback(
-    Output('table-item', 'data'),
-    [Input('submit-new-item', 'n_clicks'),
-    Input('dash-monthyear', 'value'),
-    Input('dash-category', 'value')],
-    [State('name', 'value'),
-    State('category', 'value'),
-    State('price', 'value'),
-    State('quantity', 'value'),
-    State('date', 'date'),
-    ]
-)
-def update_table(n, name, category, price, quantity, date):
-    ctx = dash.callback_context
-    input_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    if input_id == 'submit-new-item':
-        df = pd.read_csv("data/items.csv")
-        new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
-        df = df.append(new_row, ignore_index=True)
-        df.to_csv("data/items.csv", index=False)
-        df['total'] = df['price'] * df['quantity']
-        df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
-        df = df.sort_values(by='date').reset_index(drop=True)
-        print(df)
-        return df.to_dict('records')
-    else:
-        return dash.no_update
-'''
-
 
 # callback to update table based on category and date
 @app.callback(
@@ -445,4 +445,4 @@ def update_table(month_year, category):
 app.layout = html.Div([navbar, sidebar, dashboard])
 
 if __name__ == '__main__':   
-    app.run_server(debug=True)
+    app.run_server(debug=True) 
