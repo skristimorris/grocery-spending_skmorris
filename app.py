@@ -12,6 +12,7 @@ import dash_table
 from dash.exceptions import PreventUpdate
 from dash import no_update
 from dash_table import FormatTemplate
+from datetime import date
 
 # set dataframe
 df = pd.read_csv('data/items.csv')
@@ -33,9 +34,6 @@ df_table = df[['name', 'price', 'quantity', 'date']]
 df_date = df.sort_values(by='date', ascending=False)
 df_date = df_date.head(1)
 df_date = df_date.month_year.item()
-
-# format price in table as money
-money = FormatTemplate.money(2)
 
 # Ref: https://dash.plotly.com/layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -99,7 +97,8 @@ def InputItem():
                     html.Br(),
                     dcc.DatePickerSingle(
                         id='date',
-                        month_format='MMM Do, YY'
+                        month_format='MMM Do, YY',
+                        date=date.today()
                     )
                 ]
             ),
@@ -275,13 +274,25 @@ sidebar = html.Div(
 # callback for modal
 @app.callback(
     Output('modal', 'is_open'),
-    [Input('button-new-item', 'n_clicks'), Input('close', 'n_clicks')],
+    [Input('button-new-item', 'n_clicks'), 
+    Input('close', 'n_clicks')],
     [State('modal', 'is_open')],
 )
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+@app.callback(
+    [Output('name', 'value'),
+    Output('category', 'value'),
+    Output('price', 'value'),
+    Output('quantity', 'value')],
+    #Output('date', 'date')],
+    [Input('modal', 'is_open')]
+)
+def clear_input(n):
+    return ('','','',1)
 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 # Check for valid inputs on form
