@@ -349,16 +349,15 @@ def generate_graph_all_cat(data, month_year):
         hole= .5)
     fig.update_traces(
         hoverinfo='label+percent', 
-        texttemplate='%{value:$}',
-        textinfo='value'
+        texttemplate='%{value:$.2f}',
+        #textinfo='value'.format(total_format),
+        textposition='inside'
     )
     fig.update_layout(
         annotations= [
             dict(text= 'Total Amount <br> ${}'.format(total_format), x=0.5, y=0.5, font_size=15, showarrow=False),
         ],
-        legend_title='<b> Category </b>',
-        uniformtext_minsize=8,
-        uniformtext_mode='show'
+        legend_title='<b> Category </b>'
     )
     return fig  
 
