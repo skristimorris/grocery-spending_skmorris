@@ -18,7 +18,6 @@ from datetime import date
 df = pd.read_csv('data/items.csv')
 df_category = pd.read_csv('data/category.csv')
 pd.options.display.float_format = '{:.2f}'.format
-print(df)
 
 # add 'total' column to df
 df['total'] = df['price'] * df['quantity']
@@ -322,14 +321,16 @@ def check_validity(n, name, category, price, quantity, date):
     
 
 # Ref: https://dash.plotly.com/basic-callbacks
-# callback to set category dropdown options based on month selected - not selecting cat for month
+# callback to set category dropdown options based on month selected
 @app.callback(
     Output('dash-category', 'options'),
-    [Input('dash-monthyear', 'value')]
+    [Input('table-item', 'data'),
+    Input('dash-monthyear', 'value')]
 )
-def set_cat_option(month_year):
-    df_cat = df.query('month_year == @month_year')
-    return [{'label': i, 'value': i} for i in sorted(df_cat.category.unique())]
+def set_cat_option(data, month_year):
+    dff = pd.DataFrame.from_dict(data)
+    dff = dff.query('month_year == @month_year')
+    return [{'label': i, 'value': i} for i in sorted(dff.category.unique())]
 
 # callback to set category dropdown default value
 @app.callback(
@@ -361,7 +362,6 @@ def generate_graph_all_cat(data, month_year):
     fig.update_traces(
         hoverinfo='label+percent', 
         texttemplate='%{value:$.2f}',
-        #textinfo='value'.format(total_format),
         textposition='inside'
     )
     fig.update_layout(
@@ -461,12 +461,13 @@ def update_table(n, name, category, price, quantity, date):
 # callback to update table based on category and date
 @app.callback(
     Output('table-item-display', 'data'),
-    [Input('dash-monthyear', 'value'),
+    [Input('table-item', 'data'),
+    Input('dash-monthyear', 'value'),
     Input('dash-category', 'value')]
 )
-def update_table(month_year, category):
-    df_table = pd.DataFrame(df.query('month_year == @month_year and category == @category'))
-    df_table = df_table[['name', 'price', 'quantity', 'total', 'date']]
+def update_table(data, month_year, category):
+    dff = pd.DataFrame.from_dict(data)
+    df_table = pd.DataFrame(dff.query('month_year == @month_year and category == @category'))
     print(df_table)
     return df_table.to_dict('records')
         
