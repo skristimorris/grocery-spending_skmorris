@@ -159,6 +159,7 @@ dashboard = html.Div(
             ],
             style={'display': 'none'},
             ),
+            html.P('Select a date:'),
             html.Div([
                 dcc.Dropdown(
                     id='dash-monthyear',
@@ -198,19 +199,18 @@ dashboard = html.Div(
                         id='table-item-display',
                         data=df.to_dict('records'),
                         columns=[
-                            {
-                            'name': i, 'id': i
-                            }
-                            for i in (df_table.columns)
+                            {'name': 'Name', 'id': 'name'},
+                            {'name': 'Price', 'id': 'price'},
+                            {'name': 'Quantity', 'id': 'quantity'},
+                            {'name': 'Date', 'id': 'date'},
                             ],
-                        filter_action='native',
                         page_action='native',
                         page_current=0,
                         page_size=10,
                         sort_action='native',
                         sort_mode='single',
                         sort_by=[{'column_id': 'date', 'direction': 'desc'}],
-                        style_cell={'textAlign': 'left'},
+                        style_cell={'textAlign': 'left', 'font-family': 'sans-serif'},
                         selected_columns=[],
                         selected_rows=[],
                         style_as_list_view=True,
