@@ -557,7 +557,7 @@ def update_table(n, name, category, price, quantity, date):
     Input('dash-monthyear', 'value'),
     Input('dash-category', 'value')]
 )
-def update_table(data, month_year, category):
+def update_table_display(data, month_year, category):
     """Callback to update datatable based on date and category dropdown selection.
         
         Args:
