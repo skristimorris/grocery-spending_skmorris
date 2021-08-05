@@ -27,4 +27,12 @@ The terminal will display the following:
 >Dash is running on http://127.0.0.1:8050/
 
 ##Known Issues
-List any known bugs and limitations
+Below are known issues:
+* The app runs off a CSV file with queries to the Pandas dataframe.
+* There is no authentication function.
+* The app does not allow multiple users.
+* The slider input for quantity only goes up to 10.
+* The item name is not capitalized in the CSV file if it is entered in all lowercase letters.
+* The format of the amount in the pie chart is longer than two decimals.
+* The amount at the top of the bar chart is cut off at the top.
+* The modal button says 'Close' and should say 'Cancel' instead for easier usability.
