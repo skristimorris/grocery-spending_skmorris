@@ -278,17 +278,17 @@ sidebar = html.Div(
 
 @app.callback(
     Output('modal', 'is_open'),
-    #Output('output-add-item', 'children')],
+    Output('output-add-item', 'children'),
     [Input('button-new-item', 'n_clicks'), 
-    Input('cancel', 'n_clicks')],
-    #Input('submit-new-item', 'n_clicks')],
-    State('modal', 'is_open'),
-    #State('name', 'value'),
-    #State('category', 'value'),
-    #State('price', 'value')
-    #]
+    Input('cancel', 'n_clicks'),
+    Input('submit-new-item', 'n_clicks')],
+    [State('modal', 'is_open'),
+    State('name', 'value'),
+    State('category', 'value'),
+    State('price', 'value')
+    ]
 )
-def toggle_modal(n1, n2, is_open):
+def toggle_modal(n1, n2, n3, is_open, name, category, price):
     """Callback to toggle modal.
     
     Args:
@@ -296,20 +296,31 @@ def toggle_modal(n1, n2, is_open):
         n2: number of times cancel button is clicked
         n3: number of times submit button is clicked
         is_open: passes open state of modal
+        name: passes state of item name value
+        category: passes state of category value
+        price: passes state of price value
     
     Returns:
-        enables modal to be toggled between open and closed when the buttons are clicked
+        enables modal to be toggled between open and closed when the buttons are clicked,
+        if submit button is clicked and name, category or price is empty (quantity & date have default values):
+            modal does not close and string displays with missing input fields 
     """
-    #ctx = dash.callback_context
-    #input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    ctx = dash.callback_context
+    input_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    #if input_id == 'submit-new-item':
-        #return not is_open
-    #return is_open
-    if n1 or n2:
-        return not is_open
-    return is_open
-
+    if input_id == 'button-new-item':
+        return not is_open, None
+    elif input_id == 'cancel':
+        return not is_open, None
+    elif input_id == 'submit-new-item':
+        if name == None:
+            return no_update, 'Please enter an item name.'
+        if category == None:
+            return no_update, 'Please select a category.'
+        if price == None:
+            return no_update, 'Please enter a price.'
+        return not is_open, None
+    return is_open, None
 
 @app.callback(
     [Output('name', 'value'),
@@ -326,46 +337,9 @@ def clear_input(is_open):
             is_open: open state of modal
         
         Returns:
-            empty values for name, category, and price inputs and resets quantity slider to 1
+            None for name, category, and price inputs and resets quantity slider to 1 and date to today's date
     """
     return (None,None,None,1,date.today())
-
-'''
-# Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
-@app.callback(
-    Output('output-add-item', 'children'),
-    [Input('submit-new-item', 'n_clicks')],
-    [State('name', 'value'),
-    State('category', 'value'),
-    State('price', 'value')]
-)
-def check_validity(n, name, category, price):
-    """Callback to check for valid inputs on form.
-        
-        Args:
-            n: number of times submit button is clicked
-            name: passes state of item name value
-            category: passes state of category value
-            price: passes state of price value
-            quantity: passes state of quantity value
-            date: passes state of date value
-        
-        Returns:
-            strings if submit button is clicked and input field is empty
-
-        Raises:
-            prevent callback from updating if submit button is not clicked
-    """
-    if n>0:
-        if name == None:
-            return 'Please enter an item name.'
-        if category == None:
-            return 'Please select a category.'
-        if price == None:
-            return 'Please enter a price.'
-    else:
-        raise PreventUpdate
-        '''
 
 # Ref: https://dash.plotly.com/basic-callbacks
 @app.callback(
@@ -517,6 +491,7 @@ def update_graph_trend(data, category):
 # Ref: https://dash.plotly.com/advanced-callbacks
 @app.callback(
     Output('table-item', 'data'),
+    #Output('output-add-item', 'children'),
     [Input('submit-new-item', 'n_clicks')],
     [State('name', 'value'),
     State('category', 'value'),
@@ -542,23 +517,26 @@ def update_table(n, name, category, price, quantity, date):
         Raises:
             no update to dataframe if name, category, price, quantity, or date is empty 
     """
+    df = pd.read_csv("data/items.csv")
     ctx = dash.callback_context
     input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
     if input_id == 'submit-new-item':
-        if None not in [name, category, price, quantity, date]:
-            df = pd.read_csv("data/items.csv")
+        if None in [name, category, price]:
+            return no_update
+        else:
             new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
             df = df.append(new_row, ignore_index=True)
             df.to_csv("data/items.csv", index=False)
             df['total'] = df['price'] * df['quantity']
             df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
             df = df.sort_values(by='date').reset_index(drop=True)
-            print(df)
             return df.to_dict('records')
-        else:
-            return dash.no_update
     else:
-        return dash.no_update
+        df['total'] = df['price'] * df['quantity']
+        df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
+        df = df.sort_values(by='date').reset_index(drop=True)
+        return df.to_dict('records')
 
 @app.callback(
     Output('table-item-display', 'data'),
