@@ -7,8 +7,6 @@ This app allows a user to input a grocery item.
 # app.py
 
 import dash
-from dash.exceptions import PreventUpdate
-from dash import no_update
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -314,11 +312,11 @@ def toggle_modal(n1, n2, n3, is_open, name, category, price):
         return not is_open, None
     elif input_id == 'submit-new-item':
         if name == None:
-            return no_update, 'Please enter an item name.'
+            return dash.no_update, 'Please enter an item name.'
         if category == None:
-            return no_update, 'Please select a category.'
+            return dash.no_update, 'Please select a category.'
         if price == None:
-            return no_update, 'Please enter a price.'
+            return dash.no_update, 'Please enter a price.'
         return not is_open, None
     return is_open, None
 
@@ -523,7 +521,7 @@ def update_table(n, name, category, price, quantity, date):
 
     if input_id == 'submit-new-item':
         if None in [name, category, price]:
-            return no_update
+            return dash.no_update
         else:
             new_row = {'name': name, 'category': category, 'price': price, 'quantity': quantity, 'date': date}
             df = df.append(new_row, ignore_index=True)
