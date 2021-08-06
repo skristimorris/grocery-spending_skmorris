@@ -35,4 +35,3 @@ Below are known issues:
 * The item name is not capitalized in the CSV file if it is entered in all lowercase letters.
 * The format of the amount in the pie chart is longer than two decimals.
 * The amount at the top of the bar chart is cut off at the top.
-* The modal button says 'Close' and should say 'Cancel' instead for easier usability.
