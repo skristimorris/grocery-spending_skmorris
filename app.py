@@ -489,7 +489,6 @@ def update_graph_trend(data, category):
 # Ref: https://dash.plotly.com/advanced-callbacks
 @app.callback(
     Output('table-item', 'data'),
-    #Output('output-add-item', 'children'),
     [Input('submit-new-item', 'n_clicks')],
     [State('name', 'value'),
     State('category', 'value'),
