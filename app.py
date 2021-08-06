@@ -7,6 +7,8 @@ This app allows a user to input a grocery item.
 # app.py
 
 import dash
+from dash.exceptions import PreventUpdate
+from dash import no_update
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
@@ -14,8 +16,6 @@ from dash.dependencies import Input, Output, State
 import plotly.express as px
 import pandas as pd
 import dash_table
-from dash.exceptions import PreventUpdate
-from dash import no_update
 from dash_table import FormatTemplate
 from datetime import date
 
@@ -59,7 +59,7 @@ def InputItem():
                 [
                     dbc.Label('Item Name'),
                     dcc.Input(
-                        id='name', 
+                        id='name',
                         placeholder='Enter grocery item',
                         style={'width': '100%'}
                     ),
@@ -71,7 +71,7 @@ def InputItem():
                     dcc.Dropdown(
                         id='category',
                         options=[
-                            {'label': i, 'value': i} for i in sorted(df_category.Category) # populate category dropdown from df_category sorted alphabetically
+                            {'label': i, 'value': i} for i in sorted(df_category.Category)
                         ],
                     )
                 ]
@@ -109,11 +109,11 @@ def InputItem():
                     dcc.DatePickerSingle(
                         id='date',
                         month_format='MMM Do, YY',
-                        date=date.today() # set default date to today's date
+                        date=date.today()
                     )
                 ]
             ),
-                    html.Div(id='output-add-item', # field to show exceptions 
+                    html.Div(id='output-add-item',
                     style={'color': 'red'})
                 ]
             )
@@ -123,25 +123,25 @@ button_item = html.Div([
 dbc.Row(
     [
         dbc.Col(
-            dbc.Button( # button to add new item
+            dbc.Button(
                 "New Item", id='button-new-item', color="primary", className="ml-2", n_clicks=0, block=True
             ),
             width="auto",
             
         ), 
-        dbc.Modal( # modal to contain input form and submit and close buttons
+        dbc.Modal(
         [
         dbc.ModalHeader('Add New Item'),
-        dbc.ModalBody(InputItem()), # input form
+        dbc.ModalBody(InputItem()),
         dbc.ModalFooter(
             [
             dbc.Button('Submit', id='submit-new-item', className='ml-auto', n_clicks=0, color='primary'),
-            dbc.Button('Close', id='close', className='ml-auto', n_clicks=0, color='primary')
+            dbc.Button('Cancel', id='cancel', className='ml-auto', n_clicks=0, color='primary')
             ]
         )
         ],
         id='modal',
-        is_open=False, # set modal default to be closed
+        is_open=False,
     ) 
     ],
     no_gutters=True,
@@ -151,14 +151,14 @@ dbc.Row(
 ])
 
 # Ref: https://dash.plotly.com/dash-core-components/graph
-dashboard = html.Div( # create objects for dashboard layout
+dashboard = html.Div(
         [
             html.Br(),
             html.Br(),
             html.H5('Spending Dashboard', style={'textAlign': 'left'}),
             html.Hr(),
             html.Div([
-                dash_table.DataTable( # create datatable to add items to on the backend
+                dash_table.DataTable(
                         id='table-item',
                         data=df.to_dict('records'),
                         columns=[
@@ -169,17 +169,17 @@ dashboard = html.Div( # create objects for dashboard layout
                             ],
                         ) 
             ],
-            style={'display': 'none'}, # datatable is hidden
+            style={'display': 'none'},
             ),
             html.P('Select a date:'),
             html.Div([
-                dcc.Dropdown( # dropdown to select month to filter graphs
+                dcc.Dropdown(
                     id='dash-monthyear',
                     options=[
-                        {'label': i, 'value': i} for i in df.month_year.unique() # populate date dropdown with unique values from 'month_year'
+                        {'label': i, 'value': i} for i in df.month_year.unique()
                     ],
-                    value=df_date, # set date to most recent month from df
-                    clearable=False # disallow dropdown to be cleared
+                    value=df_date,
+                    clearable=False
                 )], 
                 style={
                     'width': '20%',
@@ -187,13 +187,13 @@ dashboard = html.Div( # create objects for dashboard layout
                 },
             ),
             dbc.Row(
-                dcc.Graph(id='graph-spending-all') # create graph figure to show spending for all categories
+                dcc.Graph(id='graph-spending-all')
                 ),
             html.Hr(),
             html.P('Select a category:'),
             html.Div([
-                dcc.Dropdown(id='dash-category', # dropdown to select category to filter graphs
-                clearable=False # disallow dropdown to be cleared
+                dcc.Dropdown(id='dash-category',
+                clearable=False
                 )
             ],
                 style={
@@ -204,15 +204,15 @@ dashboard = html.Div( # create objects for dashboard layout
             html.Br(),
             dbc.Row([
                 dbc.Col(
-                    dcc.Graph(id='graph-item') # create graph figure to show items in selected date and category
+                    dcc.Graph(id='graph-item')
                 ),
                 dbc.Col([
-                        dash_table.DataTable( # create datatable to display items for selected date and category
+                        dash_table.DataTable(
                         id='table-item-display',
                         data=df.to_dict('records'),
                         columns=[
                             {'name': 'Name', 'id': 'name'},
-                            {'name': 'Price', 'id': 'price', 'type': 'numeric', 'format': FormatTemplate.money(2)}, # format as $0.00
+                            {'name': 'Price', 'id': 'price', 'type': 'numeric', 'format': FormatTemplate.money(2)},
                             {'name': 'Quantity', 'id': 'quantity'},
                             {'name': 'Date', 'id': 'date'},
                             ],
@@ -230,7 +230,7 @@ dashboard = html.Div( # create objects for dashboard layout
                 ])
             ]),
             dbc.Row(
-                    dcc.Graph(id='graph-trend') # create graph figure to show selected category for all months
+                    dcc.Graph(id='graph-trend')
                 ),
         ],
         style={
@@ -241,7 +241,7 @@ dashboard = html.Div( # create objects for dashboard layout
 )
 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/navbar/#
-navbar = dbc.Navbar( # create navigation bar at top of layout
+navbar = dbc.Navbar(
     [
         html.A(
             dbc.Row(
@@ -259,11 +259,11 @@ navbar = dbc.Navbar( # create navigation bar at top of layout
 )
 
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/examples/simple-sidebar/
-sidebar = html.Div( # create sidebar on left side of layout
+sidebar = html.Div(
     [
     html.Br(),
     html.Br(),
-    button_item, # add button to sidebar
+    button_item,
     ],
     style={
         'position': 'fixed',
@@ -278,32 +278,45 @@ sidebar = html.Div( # create sidebar on left side of layout
 
 @app.callback(
     Output('modal', 'is_open'),
+    #Output('output-add-item', 'children')],
     [Input('button-new-item', 'n_clicks'), 
-    Input('close', 'n_clicks'),
-    Input('submit-new-item', 'n_clicks')],
-    [State('modal', 'is_open')],
+    Input('cancel', 'n_clicks')],
+    #Input('submit-new-item', 'n_clicks')],
+    State('modal', 'is_open'),
+    #State('name', 'value'),
+    #State('category', 'value'),
+    #State('price', 'value')
+    #]
 )
-def toggle_modal(n1, n2, n3, is_open):
+def toggle_modal(n1, n2, is_open):
     """Callback to toggle modal.
     
     Args:
         n1: number of times new item button is clicked
-        n2: number of times close button is clicked
+        n2: number of times cancel button is clicked
         n3: number of times submit button is clicked
         is_open: passes open state of modal
     
     Returns:
         enables modal to be toggled between open and closed when the buttons are clicked
     """
-    if n1 or n2 or n3:
+    #ctx = dash.callback_context
+    #input_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    #if input_id == 'submit-new-item':
+        #return not is_open
+    #return is_open
+    if n1 or n2:
         return not is_open
     return is_open
+
 
 @app.callback(
     [Output('name', 'value'),
     Output('category', 'value'),
     Output('price', 'value'),
-    Output('quantity', 'value')],
+    Output('quantity', 'value'),
+    Output('date', 'date')],
     [Input('modal', 'is_open')]
 )
 def clear_input(is_open):
@@ -315,19 +328,18 @@ def clear_input(is_open):
         Returns:
             empty values for name, category, and price inputs and resets quantity slider to 1
     """
-    return ('','','',1)
+    return (None,None,None,1,date.today())
 
+'''
 # Ref: https://dash-bootstrap-components.opensource.faculty.ai/docs/components/form/
 @app.callback(
     Output('output-add-item', 'children'),
     [Input('submit-new-item', 'n_clicks')],
     [State('name', 'value'),
     State('category', 'value'),
-    State('price', 'value'),
-    State('quantity', 'value'),
-    State('date', 'date')]
+    State('price', 'value')]
 )
-def check_validity(n, name, category, price, quantity, date):
+def check_validity(n, name, category, price):
     """Callback to check for valid inputs on form.
         
         Args:
@@ -351,13 +363,9 @@ def check_validity(n, name, category, price, quantity, date):
             return 'Please select a category.'
         if price == None:
             return 'Please enter a price.'
-        if quantity == None:
-            return 'Please select a quantity.'
-        if date == None:
-            return 'Please select a date.'
     else:
         raise PreventUpdate
-    
+        '''
 
 # Ref: https://dash.plotly.com/basic-callbacks
 @app.callback(
@@ -545,9 +553,10 @@ def update_table(n, name, category, price, quantity, date):
             df['total'] = df['price'] * df['quantity']
             df['month_year'] = pd.to_datetime(df['date']).dt.strftime('%B %Y')
             df = df.sort_values(by='date').reset_index(drop=True)
+            print(df)
             return df.to_dict('records')
         else:
-            return no_update
+            return dash.no_update
     else:
         return dash.no_update
 
@@ -574,5 +583,5 @@ def update_table_display(data, month_year, category):
         
 app.layout = html.Div([navbar, sidebar, dashboard])
 
-if __name__ == '__main__':   
-    app.run_server(debug=True) 
+if __name__ == '__main__':
+    app.run_server(debug=True)
